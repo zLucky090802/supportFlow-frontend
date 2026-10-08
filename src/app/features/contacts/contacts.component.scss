@@ -1,4 +1,20 @@
 :host { display: block; color: #29372f; background: #f7f9f6; font-size: 14px; }
+.storage-note { margin-top: 16px; font-size: 11px; color: #707d74; }
+.feedback { padding: 12px; margin-top: 14px; background: #edf4ed; border-radius: 9px; font-size: 13px; }
+.error { color: #963d37; }
+dialog { width: min(540px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: auto; border: 1px solid #d5dfd4; border-radius: 16px; padding: 28px; color: inherit; background: white; }
+dialog::backdrop { background: #26392a55; }
+dialog h2 { font-size: 21px; font-weight: 600; }
+.dialog-description { color: #6b796f; line-height: 1.6; font-size: 12px; margin: 12px 0; }
+.field { display: flex; flex-direction: column; gap: 8px; margin: 18px 0; font-size: 13px; min-width: 0; }
+.field input, .field select { width: 100%; min-width: 0; border: 1px solid #d5dfd4; border-radius: 8px; padding: 11px; background: white; color: inherit; }
+.field-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.dialog-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+dialog button:disabled { opacity: .5; }
+pre { background: #f2f5ef; padding: 12px; border-radius: 8px; font-size: 11px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.preview { padding: 0; list-style: none; }
+.preview li { padding: 10px 0; border-bottom: 1px solid #edf0e9; font-size: 12px; overflow-wrap: anywhere; }
+.preview span { display: block; color: #6b796f; margin-top: 5px; }
 button, input, select { font: inherit; }
 button, a { color: inherit; }
 button, .primary { border: 1px solid #e1e7e1; border-radius: 9px; background: white; padding: 10px 14px; }
