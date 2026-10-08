@@ -1,0 +1,193 @@
+<main class="workspace" [class.sidebar-collapsed]="!isSidebarExpanded()" [class.details-collapsed]="!detailsOpen()">
+  <aside class="sidebar" aria-label="Navegación principal">
+    <div class="brand-row">
+      <div class="brand-mark" aria-hidden="true"><span></span><span></span></div>
+      @if (isSidebarExpanded()) {
+        <strong class="brand-name">supportflow</strong>
+      }
+      <button class="icon-button sidebar-toggle" type="button" (click)="toggleSidebar()"
+        [attr.aria-label]="isSidebarExpanded() ? 'Contraer menú' : 'Expandir menú'"
+        [attr.title]="isSidebarExpanded() ? 'Contraer menú' : 'Expandir menú'">
+        <app-icon [name]="isSidebarExpanded() ? 'panel-left' : 'chevron-left'" [size]="18" />
+      </button>
+    </div>
+
+    <nav class="main-nav">
+      <button type="button" class="nav-item active" title="Bandeja">
+        <app-icon name="inbox" [size]="19" />
+        @if (isSidebarExpanded()) { <span>Bandeja</span><span class="nav-count">24</span> }
+      </button>
+      <button type="button" class="nav-item" title="Contactos" routerLink="/contactos">
+        <app-icon name="users" [size]="19" />
+        @if (isSidebarExpanded()) { <span>Contactos</span> }
+      </button>
+      <button type="button" class="nav-item" title="Automatizaciones">
+        <app-icon name="sparkles" [size]="19" />
+        @if (isSidebarExpanded()) { <span>Automatizaciones</span> }
+      </button>
+      <button type="button" class="nav-item" title="Informes">
+        <app-icon name="chart" [size]="19" />
+        @if (isSidebarExpanded()) { <span>Informes</span> }
+      </button>
+    </nav>
+
+    @if (isSidebarExpanded()) {
+      <p class="nav-label">ESPACIO DE TRABAJO</p>
+      <button type="button" class="team-switcher">
+        <span class="team-avatar">SF</span>
+        <span><strong>Support Flow</strong><small>Equipo de soporte</small></span>
+        <app-icon name="chevron-down" [size]="16" />
+      </button>
+      <div class="calm-card">
+        <span class="calm-card__icon"><app-icon name="sparkles" [size]="17" /></span>
+        <div><strong>Todo bajo control</strong><p>6 conversaciones esperan respuesta.</p></div>
+      </div>
+    }
+
+    <div class="sidebar-bottom">
+      <button type="button" class="nav-item" title="Configuración">
+        <app-icon name="settings" [size]="19" />
+        @if (isSidebarExpanded()) { <span>Configuración</span> }
+      </button>
+      <button type="button" class="profile-button" title="Perfil de Daniel Espitia">
+        <span class="profile-avatar">DE</span>
+        @if (isSidebarExpanded()) {
+          <span><strong>Daniel Espitia</strong><small>Administrador</small></span>
+          <app-icon name="more" [size]="17" />
+        }
+      </button>
+    </div>
+  </aside>
+
+  <section class="inbox-panel" aria-labelledby="inbox-title">
+    <header class="inbox-header">
+      <div>
+        <p class="eyebrow">BANDEJA DE ENTRADA</p>
+        <h1 id="inbox-title">Conversaciones</h1>
+      </div>
+      <button type="button" class="new-conversation" aria-label="Nueva conversación" title="Nueva conversación">
+        <app-icon name="plus" [size]="18" />
+      </button>
+    </header>
+
+    <div class="assignment-filter" aria-label="Filtrar conversaciones">
+      <p>POR ASIGNACIÓN</p>
+      <div class="filter-tabs" role="tablist">
+        <button type="button" role="tab" [attr.aria-selected]="activeFilter() === 'all'"
+          [class.active]="activeFilter() === 'all'" (click)="setFilter('all')">Todas <span>24</span></button>
+        <button type="button" role="tab" [attr.aria-selected]="activeFilter() === 'mine'"
+          [class.active]="activeFilter() === 'mine'" (click)="setFilter('mine')">Mías <span>8</span></button>
+        <button type="button" role="tab" [attr.aria-selected]="activeFilter() === 'unassigned'"
+          [class.active]="activeFilter() === 'unassigned'" (click)="setFilter('unassigned')">Sin asignar <span>6</span></button>
+      </div>
+    </div>
+
+    <label class="search-box">
+      <span class="sr-only">Buscar conversaciones</span>
+      <app-icon name="search" [size]="17" />
+      <input type="search" placeholder="Buscar conversaciones" [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event)" />
+      <kbd>⌘ K</kbd>
+    </label>
+
+    <div class="conversation-list">
+      @for (conversation of filteredConversations(); track trackConversation($index, conversation)) {
+        <button type="button" class="conversation-row"
+          [class.selected]="selectedConversationId() === conversation.id"
+          (click)="selectConversation(conversation.id)">
+          <span class="avatar" [attr.data-tone]="conversation.avatarTone">
+            {{ conversation.initials }}
+            <span class="channel" [attr.data-channel]="conversation.channel">
+              <app-icon [name]="conversation.channel" [size]="11" />
+            </span>
+          </span>
+          <span class="conversation-content">
+            <span class="conversation-name">{{ conversation.name }}</span>
+            <span class="conversation-preview">{{ conversation.preview }}</span>
+          </span>
+          <span class="conversation-meta">
+            <time>{{ conversation.time }}</time>
+            @if (conversation.unread > 0) {
+              <span class="unread-count" [attr.aria-label]="conversation.unread + ' mensajes sin leer'">{{ conversation.unread }}</span>
+            }
+          </span>
+        </button>
+      } @empty {
+        <div class="empty-list"><app-icon name="search" [size]="22" /><p>No encontramos conversaciones.</p></div>
+      }
+    </div>
+  </section>
+
+  <section class="conversation-view" aria-labelledby="conversation-title">
+    <header class="conversation-header">
+      <div class="conversation-person">
+        <span class="avatar avatar--small" [attr.data-tone]="selectedConversation().avatarTone">{{ selectedConversation().initials }}</span>
+        <div><h2 id="conversation-title">{{ selectedConversation().name }}</h2><p><span class="online-dot"></span> Activa ahora · {{ selectedChannelLabel() }}</p></div>
+      </div>
+      <div class="conversation-actions">
+        <button type="button" class="resolve-button"><app-icon name="check" [size]="17" /> Resolver</button>
+        <button type="button" class="icon-button" title="Archivar"><app-icon name="archive" [size]="18" /></button>
+        <button type="button" class="icon-button" title="Más opciones"><app-icon name="more" [size]="18" /></button>
+        <button type="button" class="icon-button detail-toggle" (click)="toggleDetails()" title="Detalles del contacto"><app-icon name="info" [size]="18" /></button>
+      </div>
+    </header>
+
+    <div class="messages" aria-label="Historial de mensajes">
+      <div class="day-divider"><span>Hoy</span></div>
+      @if (selectedConversation().id === 1) {
+        <article class="message customer-message">
+          <span class="avatar avatar--message" data-tone="sage">MG</span>
+          <div><p>Hola, necesito ayuda para actualizar el correo asociado a mi cuenta.</p><time>10:24 a. m.</time></div>
+        </article>
+        <article class="message agent-message">
+          <div><p>¡Hola, María! Claro que sí. Acabo de enviarte un enlace seguro al correo actual para confirmar el cambio.</p><time>10:26 a. m. <app-icon name="check" [size]="12" /></time></div>
+        </article>
+        <article class="message customer-message">
+          <span class="avatar avatar--message" data-tone="sage">MG</span>
+          <div><p>Ya lo confirmé. ¿Debo hacer algo más?</p><time>10:29 a. m.</time></div>
+        </article>
+        <article class="message agent-message">
+          <div><p>Todo listo por nuestra parte. Tu nuevo correo ya está activo y puedes usarlo para iniciar sesión.</p><time>10:31 a. m. <app-icon name="check" [size]="12" /></time></div>
+        </article>
+        <article class="message customer-message latest-message">
+          <span class="avatar avatar--message" data-tone="sage">MG</span>
+          <div><p>Perfecto, muchas gracias por la ayuda.</p><time>10:32 a. m.</time></div>
+        </article>
+      } @else {
+        <article class="message customer-message">
+          <span class="avatar avatar--message" [attr.data-tone]="selectedConversation().avatarTone">{{ selectedConversation().initials }}</span>
+          <div><p>{{ selectedConversation().preview }}</p><time>Hace {{ selectedConversation().time }}</time></div>
+        </article>
+        <article class="message agent-message latest-message">
+          <div><p>Hola, {{ selectedConversation().name.split(' ')[0] }}. Gracias por escribirnos. Ya estoy revisando tu caso y te ayudaré enseguida.</p><time>Ahora <app-icon name="check" [size]="12" /></time></div>
+        </article>
+      }
+    </div>
+
+    <footer class="composer-wrap">
+      <div class="reply-mode"><span>Responder por</span><button type="button"><app-icon [name]="selectedConversation().channel" [size]="15" /> {{ selectedChannelLabel() }} <app-icon name="chevron-down" [size]="14" /></button></div>
+      <div class="composer">
+        <textarea rows="2" aria-label="Escribe una respuesta" placeholder="Escribe una respuesta..."></textarea>
+        <div class="composer-actions">
+          <div><button type="button" class="composer-icon" title="Adjuntar archivo"><app-icon name="paperclip" [size]="18" /></button><button type="button" class="composer-icon" title="Añadir emoji"><app-icon name="smile" [size]="18" /></button></div>
+          <button type="button" class="send-button">Enviar <span>⌘↵</span><app-icon name="send" [size]="16" /></button>
+        </div>
+      </div>
+    </footer>
+  </section>
+
+  @if (detailsOpen()) {
+    <aside class="details-panel" aria-label="Detalles del contacto">
+      <header><h2>Detalles</h2><button type="button" class="icon-button" (click)="toggleDetails()" title="Ocultar detalles"><app-icon name="panel-left" [size]="18" /></button></header>
+      <div class="contact-summary">
+        <span class="avatar avatar--large" [attr.data-tone]="selectedConversation().avatarTone">{{ selectedConversation().initials }}</span>
+        <h3>{{ selectedConversation().name }}</h3>
+        <p>Cliente desde mayo de 2024</p>
+        <span class="status-pill"><span></span> Conversación abierta</span>
+      </div>
+      <section class="detail-section"><h4>ASIGNACIÓN</h4><button type="button" class="select-row"><span class="profile-avatar profile-avatar--small">DE</span><span><small>Responsable</small><strong>{{ selectedConversation().assignedTo || 'Sin asignar' }}</strong></span><app-icon name="chevron-down" [size]="16" /></button></section>
+      <section class="detail-section"><h4>INFORMACIÓN</h4><dl><div><dt>Correo</dt><dd>{{ selectedEmail() }}</dd></div><div><dt>Teléfono</dt><dd>+57 310 456 7821</dd></div><div><dt>Idioma</dt><dd>Español</dd></div><div><dt>Zona horaria</dt><dd>Bogotá (GMT-5)</dd></div></dl></section>
+      <section class="detail-section"><h4>ETIQUETAS</h4><div class="tags">@for (tag of selectedConversation().tags; track tag) { <span>{{ tag }}</span> }<button type="button" aria-label="Añadir etiqueta"><app-icon name="plus" [size]="14" /></button></div></section>
+    </aside>
+  }
+</main>

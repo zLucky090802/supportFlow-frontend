@@ -1,0 +1,53 @@
+<main class="contacts-layout" [class.compact]="compact()">
+  <aside class="sidebar" aria-label="Navegación principal">
+    <div class="brand"><span class="mark" aria-hidden="true"><i></i><i></i></span><b>supportflow</b>
+      <button class="collapse" type="button" (click)="compact.set(!compact())" [attr.aria-expanded]="!compact()" [attr.aria-label]="compact() ? 'Expandir menú' : 'Contraer menú'"><app-icon name="panel-left" /></button>
+    </div>
+    <nav class="nav" aria-label="Menú principal">
+      <a routerLink="/bandeja" title="Bandeja"><app-icon name="inbox" /><span>Bandeja</span></a>
+      <a routerLink="/contactos" class="active" aria-current="page" title="Contactos"><app-icon name="users" /><span>Contactos</span></a>
+      <button type="button" disabled title="Automatizaciones · Próximamente"><app-icon name="sparkles" /><span>Automatizaciones</span></button>
+      <button type="button" disabled title="Informes · Próximamente"><app-icon name="chart" /><span>Informes</span></button>
+    </nav>
+    <div class="label">ESPACIO DE TRABAJO</div>
+    <div class="team"><span class="mini">SF</span><div><strong>Support Flow</strong><small>Equipo de soporte</small></div></div>
+    <div class="bottom"><div class="nav"><button type="button" disabled title="Configuración · Próximamente"><app-icon name="settings" /><span>Configuración</span></button></div><div class="profile"><span class="avatar">DE</span><div>Daniel Espitia<small>Administrador</small></div></div></div>
+  </aside>
+  <section class="content" aria-labelledby="contacts-title">
+    <header class="top"><div><p class="eyebrow">TU ESPACIO DE TRABAJO</p><h1 id="contacts-title">Contactos</h1><p class="subtitle">Cada conversación empieza con una persona.</p></div>
+      <div class="top-actions"><button type="button" disabled title="Importación pendiente de implementar">Importar</button><button class="primary" type="button" disabled title="Creación de contactos pendiente de implementar">＋ Nuevo contacto</button></div>
+    </header>
+    <div class="tabs" aria-label="Grupo de contactos">@for (item of groups; track item.id) {
+      <button type="button" [class.active]="group() === item.id" [attr.aria-pressed]="group() === item.id" (click)="group.set(item.id)">{{ item.label }} <span>{{ item.count }}</span></button>
+    }</div>
+    <div class="toolbar">
+      <label class="search"><app-icon name="search" /><input type="search" aria-label="Buscar contactos" placeholder="Buscar por nombre o correo..." [ngModel]="query()" (ngModelChange)="query.set($event)" /></label>
+      <select aria-label="Filtrar por canal" [ngModel]="channel()" (ngModelChange)="channel.set($event)"><option value="">Todos los canales</option><option>WhatsApp</option><option>Correo</option><option>Instagram</option></select>
+      <select aria-label="Filtrar por etiqueta" [ngModel]="tag()" (ngModelChange)="tag.set($event)"><option value="">Etiquetas</option><option>Cliente</option><option>VIP</option><option>Prospecto</option></select>
+    </div>
+    <div class="table-wrap"><table aria-label="Contactos"><thead><tr><th scope="col">CONTACTO</th><th scope="col">ETIQUETA</th><th scope="col">ÚLTIMA ACTIVIDAD</th></tr></thead><tbody>
+      @for (contact of filteredContacts(); track contact.id) {
+        <tr [class.selected]="selected()?.id === contact.id" (click)="selectedId.set(contact.id)">
+          <td><button class="person" type="button" [attr.aria-pressed]="selected()?.id === contact.id" (click)="selectedId.set(contact.id)"><span class="avatar" [style.background]="contact.tone">{{ contact.initials }}</span><span><strong>{{ contact.name }}</strong><small>{{ contact.email }}</small></span></button></td>
+          <td><span class="pill">{{ contact.tag }}</span></td><td class="activity">{{ contact.time }}</td>
+        </tr>
+      } @empty {
+        <tr><td colspan="3" class="empty"><p>No hay contactos con estos filtros.</p><button type="button" (click)="clearFilters()">Limpiar filtros</button></td></tr>
+      }
+    </tbody></table></div>
+    <footer class="table-foot"><span role="status">{{ filteredContacts().length }} de {{ contacts.length }} contactos</span><span>Todos los resultados</span></footer>
+  </section>
+  <aside class="detail" aria-label="Ficha del contacto">
+    <header class="detail-head"><strong>Ficha del contacto</strong><app-icon name="users" [size]="16" /></header>
+    @if (selected(); as contact) {
+      <div class="summary"><span class="avatar" [style.background]="contact.tone">{{ contact.initials }}</span><h2>{{ contact.name }}</h2><small>{{ contact.since || 'Contacto de Support Flow' }}</small>
+        @if (contact.conversationId) { <a class="primary" routerLink="/bandeja" [queryParams]="{ conversacion: contact.conversationId }">Ver conversación ↗</a> }
+        @else { <button type="button" disabled>Sin conversación disponible</button> }
+      </div>
+      <section class="section"><h3>INFORMACIÓN</h3><dl><dt>Correo electrónico</dt><dd>{{ contact.email }}</dd><dt>Canal principal</dt><dd>{{ contact.channel }}</dd><dt>Responsable</dt><dd>{{ contact.owner }}</dd></dl></section>
+      <section class="section"><h3>ETIQUETAS</h3><span class="pill">{{ contact.tag }}</span><span class="pill">Español</span></section>
+      <section class="section"><h3>ACTIVIDAD RECIENTE</h3><div class="event">Último contacto<small>{{ contact.time }}</small></div><div class="event">{{ contact.owner === 'Sin asignar' ? 'Pendiente de asignación' : 'Conversación asignada' }}<small>{{ contact.owner === 'Sin asignar' ? 'Equipo de soporte' : contact.owner }}</small></div></section>
+      <section class="section"><h3>NOTAS DEL EQUIPO</h3><p class="note">{{ contact.note || 'Todavía no hay notas para este contacto.' }}</p></section>
+    } @else { <p class="empty">No hay un contacto para mostrar.</p> }
+  </aside>
+</main>
