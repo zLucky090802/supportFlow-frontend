@@ -1,0 +1,75 @@
+<main class="app" [class.compact]="compact()">
+  <app-sidebar [compact]="compact()" (compactChange)="compact.set($event)" />
+  <section class="team-page" aria-labelledby="team-title">
+    <header class="top"><div><p class="eyebrow">TU ESPACIO DE TRABAJO</p><h1 id="team-title">Team</h1><p class="subtitle">Las personas que hacen posible una buena atención.</p></div>
+      <button type="button" class="primary" (click)="invitationInfo.showModal()">＋ Invitar integrante</button>
+    </header>
+    @if (view() === 'default') {
+      <div class="summary-strip" aria-label="Resumen del equipo">
+        <span><strong>{{ memberCount }}</strong> integrantes</span><span class="divider" aria-hidden="true"></span>
+        <span><strong>{{ availableCount }}</strong> disponibles ahora</span><span class="divider" aria-hidden="true"></span>
+        <span><strong>{{ openChats }}</strong> conversaciones abiertas</span>
+      </div>
+      <div class="tabs" aria-label="Grupo de integrantes">
+        @for (tab of groups; track tab.id) {
+          <button type="button" [class.active]="group() === tab.id" [attr.aria-pressed]="group() === tab.id" (click)="group.set(tab.id)">{{ tab.label }} <b>{{ tab.count }}</b></button>
+        }
+      </div>
+      <div class="team-grid">
+        <section class="members-column" aria-label="Listado del equipo">
+          <div class="team-tools">
+            <label class="search"><app-icon name="search" [size]="19" /><input #searchInput type="search" aria-label="Buscar integrante" placeholder="Buscar por nombre o correo…" [ngModel]="query()" (ngModelChange)="query.set($event)" /></label>
+            <select aria-label="Filtrar por rol" [ngModel]="role()" (ngModelChange)="role.set($event)"><option value="">Todos los roles</option><option>Administrador</option><option>Agente</option></select>
+            <select aria-label="Filtrar por disponibilidad" [ngModel]="availability()" (ngModelChange)="availability.set($event)"><option value="">Disponibilidad</option><option>Disponible</option><option>Ausente</option><option>Desconectado</option><option>Invitación pendiente</option></select>
+          </div>
+          <div class="table-wrap" tabindex="0" role="region" aria-label="Tabla del equipo; desplazable horizontalmente en pantallas pequeñas">
+            <table aria-label="Integrantes e invitaciones">
+              <thead><tr><th scope="col">INTEGRANTE</th><th scope="col">ROL</th><th scope="col">ESTADO</th><th scope="col">CHATS ABIERTOS</th></tr></thead>
+              <tbody>
+                @for (member of filteredMembers(); track member.id) {
+                  <tr [class.selected]="selected()?.id === member.id">
+                    <td><button type="button" class="member-button" [attr.aria-pressed]="selected()?.id === member.id" (click)="selectedId.set(member.id)">
+                      <span class="avatar" [style.background]="member.color">{{ member.initials }}</span><span><strong>{{ member.name }} @if (member.id === 2) { <em>Tú</em> }</strong><small>{{ member.email }}</small></span>
+                    </button></td>
+                    <td><span class="role">{{ member.role }}</span></td>
+                    <td><span class="presence" [class]="presenceClass(member)">{{ member.state }}</span></td>
+                    <td class="load">
+                      @if (member.group === 'members') {
+                        <span class="load-number">{{ member.chats }}</span><span class="load-bars" aria-hidden="true">@for (bar of loadBars; track bar) { <i [class.filled]="bar <= member.chats"></i> }</span>
+                      } @else { <span class="pending-dash" aria-label="Aún no tiene conversaciones">—</span> }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+            @if (!filteredMembers().length) {
+              <div class="empty"><p>No hay integrantes con estos filtros.</p><button type="button" (click)="clearFilters(); searchInput.focus()">Limpiar filtros</button></div>
+            }
+          </div>
+          <div class="foot"><span role="status">{{ filteredMembers().length }} de {{ members.length }} personas</span><span>Selecciona una persona para ver su ficha</span></div>
+          <div class="list-note"><app-icon name="users" [size]="19" /><p><strong>Un equipo, una atención más cercana.</strong><br>La disponibilidad indica quién puede atender ahora. Las invitaciones pendientes todavía no reciben conversaciones.</p></div>
+        </section>
+        @if (selected(); as member) {
+          <aside class="member-detail" aria-label="Ficha del integrante">
+            <header><strong>Ficha del integrante</strong><app-icon name="person" [size]="19" /></header>
+            <div class="member-detail-body">
+              <div class="member-summary"><span class="avatar" [style.background]="member.color">{{ member.initials }}</span><h2>{{ member.name }}</h2><p>{{ member.email }}</p><span class="presence" [class]="presenceClass(member)">{{ member.state }}</span></div>
+              <section class="member-section"><h3>EN EL EQUIPO</h3><dl><div><dt>Rol</dt><dd>{{ member.role }}</dd></div><div><dt>{{ member.group === 'invited' ? 'Invitación' : 'Se unió' }}</dt><dd>{{ member.since }}</dd></div></dl></section>
+              <section class="member-section"><h3>CARGA ACTUAL</h3><div class="workload-card"><strong>{{ member.group === 'invited' ? '—' : member.chats }}</strong><span>{{ member.group === 'invited' ? 'Disponible cuando acepte la invitación' : 'conversaciones abiertas asignadas a esta persona' }}</span></div></section>
+              <section class="member-section"><h3>ACCESO DEL ROL · PROPUESTA</h3><p class="permission-note">{{ member.role === 'Administrador' ? 'Gestiona el espacio de trabajo y el equipo, además de atender conversaciones.' : 'Atiende conversaciones y consulta la información de los clientes.' }}</p><p class="detail-note">Los permisos definitivos se validarán antes de implementar la gestión de roles.</p></section>
+            </div>
+          </aside>
+        }
+      </div>
+    } @else {
+      <section class="view-message" aria-live="polite" [attr.aria-busy]="view() === 'loading'"><h2>{{ viewCopy().title }}</h2><p>{{ viewCopy().description }}</p><button type="button" (click)="view.set('default')">Volver al ejemplo</button></section>
+    }
+    <footer class="team-review"><span>Team · Datos de ejemplo · Sin conexión al backend</span><label>Vista de demostración <select [ngModel]="view()" (ngModelChange)="view.set($event)"><option value="default">Con integrantes</option><option value="empty">Equipo vacío</option><option value="loading">Cargando</option><option value="error">Error de carga</option></select></label></footer>
+  </section>
+</main>
+<dialog #invitationInfo aria-labelledby="invitation-title" aria-describedby="invitation-description">
+  <h2 id="invitation-title">Invitar integrante</h2>
+  <p id="invitation-description">El formulario de invitación se diseñará en el siguiente paso. Esta pantalla usa datos de ejemplo y no envía correos ni modifica permisos.</p>
+  <form method="dialog"><button>Cerrar</button></form>
+</dialog>
+
