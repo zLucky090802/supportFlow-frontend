@@ -1,18 +1,5 @@
 <main class="contacts-layout" [class.compact]="compact()">
-  <aside class="sidebar" aria-label="Navegación principal">
-    <div class="brand"><span class="mark" aria-hidden="true"><i></i><i></i></span><b>supportflow</b>
-      <button class="collapse" type="button" (click)="compact.set(!compact())" [attr.aria-expanded]="!compact()" [attr.aria-label]="compact() ? 'Expandir menú' : 'Contraer menú'"><app-icon name="panel-left" /></button>
-    </div>
-    <nav class="nav" aria-label="Menú principal">
-      <a routerLink="/bandeja" title="Bandeja"><app-icon name="inbox" /><span>Bandeja</span></a>
-      <a routerLink="/contactos" class="active" aria-current="page" title="Contactos"><app-icon name="users" /><span>Contactos</span></a>
-      <button type="button" disabled title="Automatizaciones · Próximamente"><app-icon name="sparkles" /><span>Automatizaciones</span></button>
-      <button type="button" disabled title="Informes · Próximamente"><app-icon name="chart" /><span>Informes</span></button>
-    </nav>
-    <div class="label">ESPACIO DE TRABAJO</div>
-    <div class="team"><span class="mini">SF</span><div><strong>Support Flow</strong><small>Equipo de soporte</small></div></div>
-    <div class="bottom"><div class="nav"><button type="button" disabled title="Configuración · Próximamente"><app-icon name="settings" /><span>Configuración</span></button></div><div class="profile"><span class="avatar">DE</span><div>Daniel Espitia<small>Administrador</small></div></div></div>
-  </aside>
+  <app-sidebar [compact]="compact()" (compactChange)="compact.set($event)" />
   <section class="content" aria-labelledby="contacts-title">
     <header class="top"><div><p class="eyebrow">TU ESPACIO DE TRABAJO</p><h1 id="contacts-title">Contactos</h1><p class="subtitle">Cada conversación empieza con una persona.</p></div>
       <div class="top-actions"><button type="button" (click)="openDialog(editor, true)">Importar</button><button class="primary" type="button" (click)="openDialog(editor, false)">＋ Nuevo contacto</button></div>

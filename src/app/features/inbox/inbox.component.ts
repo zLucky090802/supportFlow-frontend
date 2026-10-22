@@ -1,14 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Conversation, InboxFilter } from '../../core/interfaces/conversation';
+import { AppSidebarComponent } from '../../shared/components/app-sidebar/app-sidebar.component';
 import { AppIconComponent } from '../../shared/components/app-icon/app-icon.component';
 
 @Component({
   selector: 'app-inbox',
-  imports: [CommonModule, FormsModule, AppIconComponent, RouterLink],
+  imports: [AppSidebarComponent, CommonModule, FormsModule, AppIconComponent],
   templateUrl: './inbox.component.html',
   styleUrl: './inbox.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

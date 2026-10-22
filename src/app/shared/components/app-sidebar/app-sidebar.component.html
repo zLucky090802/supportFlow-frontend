@@ -1,0 +1,23 @@
+<aside class="sidebar" [class.compact]="compact()" aria-label="Navegación principal">
+  <div class="brand"><span class="mark" aria-hidden="true"><i></i><i></i></span><b>supportflow</b>
+    <button class="collapse" type="button" (click)="compactChange.emit(!compact())"
+      [attr.aria-expanded]="!compact()" [attr.aria-label]="compact() ? 'Expandir menú' : 'Contraer menú'"
+      [title]="compact() ? 'Expandir menú' : 'Contraer menú'"><app-icon name="panel-left" [size]="19" /></button>
+  </div>
+  <nav class="nav" aria-label="Menú principal">
+    @for (item of items; track item.label) {
+      @if (item.path) {
+        <a [routerLink]="item.path" routerLinkActive="active" ariaCurrentWhenActive="page" [title]="item.label"><app-icon [name]="item.icon" [size]="19" /><span>{{ item.label }}</span></a>
+      } @else {
+        <button type="button" disabled [title]="item.label + ' · Próximamente'" [attr.aria-label]="item.label + ' · Próximamente'"><app-icon [name]="item.icon" [size]="19" /><span>{{ item.label }}</span></button>
+      }
+    }
+  </nav>
+  <div class="bottom">
+    <div class="label">ESPACIO DE TRABAJO</div>
+    <div class="team"><span class="avatar">SF</span><div>Support Flow<small>Equipo de soporte</small></div></div>
+    <nav class="nav" aria-label="Configuración"><button type="button" disabled title="Settings · Próximamente" aria-label="Settings · Próximamente"><app-icon name="settings" [size]="19" /><span>Settings</span></button></nav>
+    <div class="profile"><span class="avatar">DE</span><div>Daniel Espitia<small>Administrador</small></div></div>
+  </div>
+</aside>
+

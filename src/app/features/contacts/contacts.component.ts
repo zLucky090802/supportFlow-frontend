@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { AppSidebarComponent } from '../../shared/components/app-sidebar/app-sidebar.component';
 import { AppIconComponent } from '../../shared/components/app-icon/app-icon.component';
 import { Contact } from './contacts.data';
 import { ContactDraft, ContactsStore, parseContactsCsv } from './contacts.store';
@@ -10,7 +11,7 @@ const normalize = (text: string): string => text.normalize('NFD').replace(/[\u03
 
 @Component({
   selector: 'app-contacts',
-  imports: [FormsModule, RouterLink, AppIconComponent],
+  imports: [AppSidebarComponent, FormsModule, RouterLink, AppIconComponent],
   templateUrl: './contacts.component.html',
   styleUrl: './contacts.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

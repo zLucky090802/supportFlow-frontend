@@ -4,6 +4,7 @@ import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { routes } from './app.routes';
 import { ContactsComponent } from './features/contacts/contacts.component';
+import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { InboxComponent } from './features/inbox/inbox.component';
 
 describe('AppComponent', () => {
@@ -20,10 +21,10 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should open the inbox by default', async () => {
+  it('should open the dashboard by default', async () => {
     const harness = await RouterTestingHarness.create();
-    await harness.navigateByUrl('/', InboxComponent);
-    expect(harness.routeNativeElement?.querySelector('h1')?.textContent).toContain('Conversaciones');
+    await harness.navigateByUrl('/', DashboardComponent);
+    expect(harness.routeNativeElement?.querySelector('h1')?.textContent).toContain('Un vistazo a tu día');
   });
 
   it('should combine contact filters and recover from empty results', async () => {

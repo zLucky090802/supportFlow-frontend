@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 export type AppIconName =
+  | 'home' | 'book' | 'clock' | 'person'
   | 'archive' | 'chart' | 'check' | 'chevron-down' | 'chevron-left'
   | 'email' | 'inbox' | 'info' | 'instagram' | 'more' | 'panel-left'
   | 'paperclip' | 'plus' | 'search' | 'send' | 'settings' | 'smile'
@@ -13,6 +14,10 @@ export type AppIconName =
     <svg [attr.width]="size()" [attr.height]="size()" viewBox="0 0 24 24" fill="none"
       stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       @switch (name()) {
+        @case ('home') { <path d="m3 10 9-7 9 7v10H3zM9 20v-7h6v7" /> }
+        @case ('book') { <path d="M12 5v15M12 5C8 2 4 3 2 4v15c3-1 7-1 10 1 3-2 7-2 10-1V4c-2-1-6-2-10 1Z" /> }
+        @case ('clock') { <circle cx="12" cy="12" r="9" /><path d="M12 7v6l4 2" /> }
+        @case ('person') { <circle cx="12" cy="7" r="4" /><path d="M4 21v-3c0-6 16-6 16 0v3" /> }
         @case ('panel-left') { <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4h13A1.5 1.5 0 0 1 20 5.5v13a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5zM9 4v16" /> }
         @case ('inbox') { <path d="M4 5h16l-1.5 13h-13zM4.8 13h4l1.5 2h3.4l1.5-2h4" /> }
         @case ('users') { <path d="M16 20v-1.7a3.3 3.3 0 0 0-3.3-3.3H7.3A3.3 3.3 0 0 0 4 18.3V20M10 11.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M17 8a3 3 0 0 1 0 5.8M20 20v-1.5a3 3 0 0 0-2.2-2.9" /> }
