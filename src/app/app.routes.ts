@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
+  { path: 'ai-agent/nuevo', title: 'Support Flow — Nuevo agente', loadComponent: () => import('./features/ai-agent/new-agent.component').then(m => m.NewAgentComponent) },
   { path: 'team', title: 'Support Flow — Team', loadComponent: () => import('./features/team/team.component').then(m => m.TeamComponent) },
   { path: 'dashboard', title: 'Support Flow — Dashboard', loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent) },
   { path: '', pathMatch: 'full', redirectTo: 'dashboard' },

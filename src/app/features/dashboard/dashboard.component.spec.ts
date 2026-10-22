@@ -16,7 +16,7 @@ describe('Approved Dashboard', () => {
     expect(root.querySelectorAll('.stat').length).toBe(4);
     expect(root.querySelectorAll('.queue-item').length).toBe(4);
     expect(root.querySelectorAll('app-sidebar nav a, app-sidebar nav button').length).toBe(8);
-    expect(root.querySelectorAll('app-sidebar button:disabled').length).toBe(4);
+    expect(root.querySelectorAll('app-sidebar button:disabled').length).toBe(3);
     expect(root.querySelector('app-sidebar .bottom .label')?.textContent).toContain('ESPACIO DE TRABAJO');
     expect(root.querySelector('app-sidebar .bottom .team')?.textContent).toContain('Support Flow');
     expect(root.querySelector('app-sidebar a[aria-current="page"]')?.textContent).toContain('Dashboard');

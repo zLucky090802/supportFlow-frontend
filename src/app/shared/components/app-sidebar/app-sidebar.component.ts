@@ -17,7 +17,7 @@ export class AppSidebarComponent {
     { label: 'Conversations', icon: 'inbox', path: '/bandeja' },
     { label: 'Customers', icon: 'users', path: '/contactos' },
     { label: 'Team', icon: 'person', path: '/team' },
-    { label: 'AI Agent', icon: 'sparkles' },
+    { label: 'AI Agent', icon: 'sparkles', path: '/ai-agent/nuevo' },
     { label: 'Knowledge Base', icon: 'book' },
     { label: 'Analytics', icon: 'chart' },
   ];
