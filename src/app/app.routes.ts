@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
+  { path: 'ai-agent', title: 'Support Flow — AI Agent', loadComponent: () => import('./features/ai-agent/agents.component').then(m => m.AgentsComponent) },
+  { path: 'ai-agent/:id/configuracion', title: 'Support Flow — Configuración del agente', loadComponent: () => import('./features/ai-agent/new-agent.component').then(m => m.NewAgentComponent) },
   { path: 'ai-agent/nuevo', title: 'Support Flow — Nuevo agente', loadComponent: () => import('./features/ai-agent/new-agent.component').then(m => m.NewAgentComponent) },
   { path: 'team', title: 'Support Flow — Team', loadComponent: () => import('./features/team/team.component').then(m => m.TeamComponent) },
   { path: 'dashboard', title: 'Support Flow — Dashboard', loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent) },
