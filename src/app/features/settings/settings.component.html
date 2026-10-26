@@ -1,0 +1,68 @@
+<main class="app" [class.compact]="compact()">
+  <app-sidebar [compact]="compact()" (compactChange)="compact.set($event)" />
+  <section class="page">
+    <header class="top"><p class="eyebrow">TU ESPACIO DE TRABAJO</p><h1>Settings</h1><p class="subtitle">Ajustes para que tu equipo trabaje a su manera.</p></header>
+    @if (view() === 'ready') {
+      <div class="settings-layout">
+        <nav class="settings-nav" aria-label="Secciones de ajustes">
+          @for (item of sections; track item.id) {
+            <button type="button" [class.active]="section() === item.id" [attr.aria-pressed]="section() === item.id" (click)="selectSection(item.id)">{{ item.label }}</button>
+          }
+        </nav>
+        <div>
+          @switch (section()) {
+            @case ('workspace') {
+              <form class="panel" [formGroup]="workspace" (ngSubmit)="save('workspace')">
+                <div class="panel-header"><h2>Espacio de trabajo</h2><span class="badge">Administrador</span></div>
+                <div class="panel-body">
+                  <label class="field">Nombre del espacio<input formControlName="name" required maxlength="80" [attr.aria-invalid]="workspace.controls.name.touched && workspace.controls.name.invalid" aria-describedby="workspace-error"></label>
+                  @if (workspace.controls.name.touched && workspace.controls.name.invalid) { <p id="workspace-error" class="error-text" role="alert">Escribe un nombre válido de hasta 80 caracteres.</p> }
+                  <div class="fields"><label class="field">Idioma<select formControlName="language"><option>Español</option></select><small>Idioma de la interfaz propuesto para el MVP.</small></label><label class="field">Zona horaria<select formControlName="timezone"><option>America/Bogota · UTC−5</option></select><small>Se aplica al horario de atención y los informes.</small></label></div>
+                  <div class="note"><app-icon name="users" /><p>Los integrantes y sus roles se administran desde <a routerLink="/team">Team</a>.</p></div>
+                  <p class="feedback" role="status">{{ feedback() }}</p>
+                </div><div class="actions"><button class="primary" type="submit">Guardar cambios</button></div>
+              </form>
+            }
+            @case ('profile') {
+              <form class="panel" [formGroup]="profile" (ngSubmit)="save('profile')">
+                <div class="panel-header"><h2>Mi perfil</h2></div><div class="panel-body">
+                  <div class="profile-identity"><span class="avatar">DE</span><div><strong>Daniel Espitia</strong><p class="subtle">Administrador · Support Flow</p></div></div>
+                  <label class="field">Nombre visible<input formControlName="name" required maxlength="100" [attr.aria-invalid]="profile.controls.name.touched && profile.controls.name.invalid" aria-describedby="profile-error"></label>
+                  @if (profile.controls.name.touched && profile.controls.name.invalid) { <p class="error-text" id="profile-error" role="alert">Escribe un nombre válido de hasta 100 caracteres.</p> }
+                  <label class="field">Correo de acceso<input type="email" formControlName="email" readonly><small>Solo lectura en esta propuesta. Cambiar credenciales requiere un flujo de autenticación que aún no está definido.</small></label>
+                  <label class="field">Disponibilidad<select formControlName="availability"><option>Disponible</option><option>Ausente</option><option>Desconectado</option></select><small>Permite que el equipo sepa si puedes atender conversaciones.</small></label>
+                  <p class="feedback" role="status">{{ feedback() }}</p>
+                </div><div class="actions"><button class="primary" type="submit">Guardar cambios</button></div>
+              </form>
+            }
+            @case ('channels') {
+              <section class="panel"><div class="panel-header"><div><h2>Canales de atención</h2><p class="subtle">Conexiones de ejemplo, no cuentas reales.</p></div></div>
+                <div class="connection"><span class="icon-box"><app-icon name="whatsapp" /></span><div><strong>WhatsApp</strong><small>Soporte principal · Cuenta de ejemplo</small></div><span class="badge">Conectado · Demo</span><button type="button" (click)="openChannel('WhatsApp', channelDialog)">Ver conexión</button></div>
+                <div class="connection"><span class="icon-box"><app-icon name="email" /></span><div><strong>Correo</strong><small>Pendiente de conectar</small></div><button type="button" (click)="openChannel('Correo', channelDialog)">Conectar</button></div>
+                <div class="connection"><span class="icon-box"><app-icon name="instagram" /></span><div><strong>Instagram</strong><small>Pendiente de conectar</small></div><button type="button" (click)="openChannel('Instagram', channelDialog)">Conectar</button></div>
+                <div class="panel-body"><p class="help">La autorización con cada proveedor se definirá según la integración disponible. Nunca se solicitarán contraseñas del proveedor dentro de este formulario.</p></div>
+              </section><div class="note channel-note"><app-icon name="sparkles" /><p>Conectar un canal no activa automáticamente un agente de IA. Su asignación se revisa por separado.</p></div>
+            }
+            @case ('hours') {
+              <form class="panel" [formGroup]="hours" (ngSubmit)="save('hours')">
+                <div class="panel-header"><div><h2>Horario de atención</h2><p class="subtle">Zona horaria: America/Bogota</p></div></div>
+                <div class="panel-body">
+                  <fieldset class="days" formArrayName="days"><legend>DÍAS LABORABLES</legend>@for (day of dayNames; track day; let i = $index) { <label class="check-row"><input type="checkbox" [formControlName]="i">{{ day }}</label> }</fieldset>
+                  <div class="fields"><label class="field">Desde<input type="time" formControlName="start" required></label><label class="field">Hasta<input type="time" formControlName="end" required></label></div>
+                  <label class="field">Mensaje fuera de horario<textarea formControlName="message" required maxlength="500"></textarea><small>Propuesta de mensaje informativo; esta demostración no envía respuestas.</small></label>
+                  <p class="help">Para el MVP se propone un único intervalo por día seleccionado, sin turnos nocturnos.</p>
+                  @if (hours.touched && hours.invalid) { <p class="error-text" role="alert">Selecciona al menos un día, un intervalo válido y un mensaje de hasta 500 caracteres. La hora de cierre debe ser posterior a la apertura.</p> }
+                  <p class="feedback" role="status">{{ feedback() }}</p>
+                </div><div class="actions"><button class="primary" type="submit">Guardar horario</button></div>
+              </form>
+            }
+          }
+        </div>
+      </div>
+    } @else {
+      <section class="state-box" aria-live="polite"><h2>{{ stateCopy[view()].title }}</h2><p>{{ stateCopy[view()].text }}</p><button type="button" (click)="view.set('ready')">Volver al ejemplo</button></section>
+    }
+    <footer class="review-strip"><span>Datos de ejemplo · Sin conexión al backend<br>No se guardan cambios reales.</span><label>Vista de prueba <select #viewSelect [value]="view()" (change)="changeView(viewSelect.value)"><option value="ready">Con información</option><option value="empty">Sin información</option><option value="loading">Cargando</option><option value="error">Error de carga</option></select></label></footer>
+  </section>
+</main>
+<dialog #channelDialog aria-labelledby="channel-title" aria-describedby="channel-description"><h2 id="channel-title">{{ dialogTitle() }}</h2><p id="channel-description">{{ dialogDescription() }}</p><form method="dialog"><button autofocus>Cerrar</button></form></dialog>

@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
+  { path: 'settings', title: 'Support Flow — Settings', loadComponent: () => import('./features/settings/settings.component').then(m => m.SettingsComponent) },
   { path: 'knowledge-base/nuevo', title: 'Support Flow — Nuevo artículo', loadComponent: () => import('./features/knowledge-base/knowledge-editor.component').then(m => m.KnowledgeEditorComponent) },
   { path: 'knowledge-base/:id/editar', title: 'Support Flow — Editar artículo', loadComponent: () => import('./features/knowledge-base/knowledge-editor.component').then(m => m.KnowledgeEditorComponent) },
   { path: 'knowledge-base', title: 'Support Flow — Knowledge Base', loadComponent: () => import('./features/knowledge-base/knowledge-base.component').then(m => m.KnowledgeBaseComponent) },
