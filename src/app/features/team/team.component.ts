@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { AppIconComponent } from '../../shared/components/app-icon/app-icon.component';
 import { AppSidebarComponent } from '../../shared/components/app-sidebar/app-sidebar.component';
 import { TEAM_MEMBERS, TEAM_VIEW_COPY, TeamAvailability, TeamGroup, TeamMember, TeamRole, TeamView } from './team.data';
@@ -7,7 +8,7 @@ import { TEAM_MEMBERS, TEAM_VIEW_COPY, TeamAvailability, TeamGroup, TeamMember, 
 const normalize = (text: string): string => text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es');
 @Component({
   selector: 'app-team',
-  imports: [FormsModule, AppIconComponent, AppSidebarComponent],
+  imports: [FormsModule, RouterLink, AppIconComponent, AppSidebarComponent],
   templateUrl: './team.component.html',
   styleUrl: './team.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

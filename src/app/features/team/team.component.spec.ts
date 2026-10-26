@@ -4,6 +4,7 @@ import { RouterTestingHarness } from '@angular/router/testing';
 import { routes } from '../../app.routes';
 import { DashboardComponent } from '../dashboard/dashboard.component';
 import { TeamComponent } from './team.component';
+import { TeamInvitationComponent } from './team-invitation.component';
 
 describe('Approved Team page', () => {
   beforeEach(() => TestBed.configureTestingModule({ providers: [provideRouter(routes)] }));
@@ -61,15 +62,14 @@ describe('Approved Team page', () => {
     }
   });
 
-  it('explains invitations without creating a member or sending an email', async () => {
+  it('opens the invitation form without creating a member or sending an email', async () => {
     const harness = await RouterTestingHarness.create();
     const team = await harness.navigateByUrl('/team', TeamComponent);
-    harness.routeNativeElement!.querySelector<HTMLButtonElement>('.top .primary')!.click();
-    const dialog = harness.routeNativeElement!.querySelector('dialog')!;
-    expect(dialog.open).toBeTrue();
-    expect(dialog.textContent).toContain('no envía correos');
+    const link = harness.routeNativeElement!.querySelector<HTMLAnchorElement>('.top .primary')!;
+    expect(link.getAttribute('href')).toBe('/team/invitar');
+    await harness.navigateByUrl(link.getAttribute('href')!, TeamInvitationComponent);
+    expect(harness.routeNativeElement!.textContent).toContain('no se envía ningún correo');
     expect(team.members.length).toBe(6);
-    dialog.close();
   });
 
   it('enables the dashboard team link and retains sidebar collapse', async () => {
