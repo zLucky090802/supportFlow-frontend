@@ -6,7 +6,7 @@ import { ARTICLES, CATEGORIES, Article, ArticleStatus } from './knowledge.data';
 const normalize=(value:string)=>value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
 @Component({selector:'app-knowledge-base',imports:[RouterLink,AppSidebarComponent,AppIconComponent],templateUrl:'./knowledge-base.component.html',styleUrl:'./knowledge-base.component.scss',changeDetection:ChangeDetectionStrategy.OnPush})
 export class KnowledgeBaseComponent {
- readonly editorAvailable=false;
+ readonly editorAvailable=true;
  readonly compact=signal(false);
  readonly categories=CATEGORIES;
  readonly tabs:readonly {label:string;value:'Todos'|ArticleStatus;count:number}[]=[{label:'Todos',value:'Todos',count:6},{label:'Publicados',value:'Publicado',count:4},{label:'Borradores',value:'Borrador',count:2}];

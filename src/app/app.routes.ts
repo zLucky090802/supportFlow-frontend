@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
+  { path: 'knowledge-base/nuevo', title: 'Support Flow — Nuevo artículo', loadComponent: () => import('./features/knowledge-base/knowledge-editor.component').then(m => m.KnowledgeEditorComponent) },
+  { path: 'knowledge-base/:id/editar', title: 'Support Flow — Editar artículo', loadComponent: () => import('./features/knowledge-base/knowledge-editor.component').then(m => m.KnowledgeEditorComponent) },
   { path: 'knowledge-base', title: 'Support Flow — Knowledge Base', loadComponent: () => import('./features/knowledge-base/knowledge-base.component').then(m => m.KnowledgeBaseComponent) },
   { path: 'ai-agent', title: 'Support Flow — AI Agent', loadComponent: () => import('./features/ai-agent/agents.component').then(m => m.AgentsComponent) },
   { path: 'ai-agent/:id/configuracion', title: 'Support Flow — Configuración del agente', loadComponent: () => import('./features/ai-agent/new-agent.component').then(m => m.NewAgentComponent) },
