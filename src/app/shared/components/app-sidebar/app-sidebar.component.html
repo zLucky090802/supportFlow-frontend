@@ -15,7 +15,7 @@
   </nav>
   <div class="bottom">
     <div class="label">ESPACIO DE TRABAJO</div>
-    <div class="team"><span class="avatar">SF</span><div>Support Flow<small>Equipo de soporte</small></div></div>
+    <a class="team" routerLink="/cambiar-equipo" title="Cambiar equipo de demostración" aria-label="Cambiar equipo de demostración"><span class="avatar">{{ workspace.activeTeam().initials }}</span><div>Support Flow<small>{{ workspace.activeTeam().name }}</small></div></a>
     <nav class="nav" aria-label="Configuración"><a routerLink="/settings" routerLinkActive="active" ariaCurrentWhenActive="page" title="Settings"><app-icon name="settings" [size]="19" /><span>Settings</span></a></nav>
     <div class="profile"><span class="avatar">DE</span><div>Daniel Espitia<small>Administrador</small></div></div>
   </div>
