@@ -1,0 +1,26 @@
+<main class="app" [class.compact]="compact()">
+  <app-sidebar [compact]="compact()" (compactChange)="compact.set($event)" />
+  <section class="page">
+    <div class="center-form">
+      <a class="back" routerLink="/team">← Volver a Team</a>
+      <header class="top"><p class="eyebrow">TU ESPACIO DE TRABAJO</p><h1>Invitar integrante</h1><p class="subtitle">Suma a las personas que atenderán a tus clientes.</p></header>
+      <form class="panel" [formGroup]="form" (ngSubmit)="invite()" novalidate>
+        <div class="panel-header"><h2>Datos de la invitación</h2><span class="pill">Support Flow</span></div>
+        <div class="panel-body">
+          <label class="field" for="invite-email">Correo electrónico
+            <input id="invite-email" type="email" formControlName="email" required maxlength="254" autocomplete="off" placeholder="persona@tuempresa.com" [attr.aria-invalid]="duplicate() || (form.controls.email.touched && form.controls.email.invalid)" aria-describedby="email-help invite-error invite-feedback">
+            <small id="email-help">Se enviaría un enlace para aceptar la invitación. En esta demostración no se envía ningún correo.</small>
+          </label>
+          @if (form.controls.email.touched && form.controls.email.invalid) { <p class="error-text" id="invite-error" role="alert">Escribe un correo electrónico válido de hasta 254 caracteres.</p> }
+          <label class="field" for="invite-role">Rol<select id="invite-role" formControlName="role"><option>Agente</option><option>Administrador</option></select></label>
+          <div class="note"><app-icon name="person" /><p id="role-description">@if (role() === 'Agente') { Agente: atiende conversaciones y consulta la información de los clientes. } @else { Administrador: además de atender conversaciones, gestiona el espacio de trabajo y su equipo. } Permisos propuestos, pendientes de validar.</p></div>
+          <p class="feedback" [class.error-text]="duplicate()" id="invite-feedback" role="status">{{ feedback() }}</p>
+          <p class="help">La persona figuraría como “Invitación pendiente” hasta aceptar. No recibe conversaciones mientras tanto.</p>
+        </div>
+        <div class="actions"><a class="button" routerLink="/team">Cancelar</a><button class="primary" type="submit">Enviar invitación</button></div>
+      </form>
+      <p class="help duplicate-help">Para revisar un correo duplicado, usa daniel&#64;supportflow.demo.</p>
+    </div>
+    <footer class="review-strip"><span>Datos de ejemplo · No se envían invitaciones reales.</span><span>Sin conexión al backend · No se guardan cambios</span></footer>
+  </section>
+</main>

@@ -1,0 +1,19 @@
+<main class="app" [class.compact]="compact()"><app-sidebar [compact]="compact()" (compactChange)="compact.set($event)" />
+<section class="page"><div class="center-form"><a class="back" routerLink="/ai-agent">← Volver a AI Agent</a>
+@if (agent(); as current) {
+<header class="top"><p class="eyebrow">TU ESPACIO DE TRABAJO</p><h1>Activar agente</h1><p class="subtitle">Revisa dónde responderá y cómo entregará la conversación al equipo.</p></header>
+<div class="note"><app-icon name="sparkles" [size]="19" /><p><strong>{{ current.name }}</strong><br>Agente ficticio · {{ current.state }} · Ninguna acción de esta vista afecta clientes reales.</p></div>
+@if (current.state === 'Activo') { <section class="panel panel-body"><h2>Este agente ya figura como activo</h2><p>Es un estado de ejemplo. Puedes revisar su configuración desde el listado.</p><a class="back" [routerLink]="['/ai-agent', current.id, 'configuracion']">Ver configuración →</a></section> } @else {
+<form class="panel" [formGroup]="form" (ngSubmit)="review(confirmation)"><div class="panel-header"><h2>Canal y revisión final</h2><span class="badge" [class.draft]="!activated()">{{ activated() ? 'Activo · Demo' : current.state }}</span></div>
+<div class="panel-body"><label class="field">Canal de atención<select formControlName="channel" required><option value="">Selecciona un canal</option><option value="whatsapp-demo">WhatsApp · Soporte principal (demo)</option><option disabled>Correo · Sin conectar</option><option disabled>Instagram · Sin conectar</option></select><small>Solo se muestran como disponibles los canales conectados. <a routerLink="/settings" [queryParams]="{ section: 'channels' }">Revisar canales</a>.</small></label>
+<div class="divider"></div><h3>Comprueba antes de activar</h3>
+<label class="check-row"><input type="checkbox" formControlName="identityReviewed" required>Revisé el nombre, las instrucciones y las respuestas de ejemplo.</label>
+<label class="check-row"><input type="checkbox" formControlName="knowledgeReviewed" required>La base de conocimiento contiene información publicada y vigente.</label>
+<label class="check-row"><input type="checkbox" formControlName="handoffReviewed" required>El agente derivará a “Sin asignar” cuando no sepa responder o el cliente pida una persona.</label>
+<p class="help">Propuesta para el MVP: un canal por agente y un agente activo por canal. Esta regla requiere validación técnica; este ejemplo no comprueba asignaciones reales.</p>
+@if (form.touched && form.invalid) { <p class="error" role="alert">Selecciona el canal disponible y confirma las tres revisiones.</p> }
+<p class="feedback" role="status">{{ feedback() }}</p></div><div class="actions"><a class="button" routerLink="/ai-agent">{{ activated() ? 'Volver al listado' : 'Cancelar' }}</a><button type="submit" class="primary" [disabled]="activated()">Revisar activación</button></div></form>
+}
+} @else { <section role="alert"><h1>Agente no encontrado</h1><p>Vuelve al listado para seleccionar un agente de ejemplo.</p></section> }
+</div><footer class="review-strip"><span>Activación · Datos de ejemplo</span><span>Sin conexión al backend · No se guardan cambios</span></footer></section></main>
+<dialog #confirmation aria-labelledby="activation-title"><h2 id="activation-title">Confirmar activación</h2><p>En el producto, el agente comenzaría a atender nuevas conversaciones del canal seleccionado. Esta demostración no conecta con un proveedor ni activa una IA.</p><form method="dialog"><button>Cancelar</button><button class="primary" (click)="activate()">Activar ejemplo</button></form></dialog>

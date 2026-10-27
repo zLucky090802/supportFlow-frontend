@@ -24,7 +24,7 @@ describe('AppComponent', () => {
   it('should open the dashboard by default', async () => {
     const harness = await RouterTestingHarness.create();
     await harness.navigateByUrl('/', DashboardComponent);
-    expect(harness.routeNativeElement?.querySelector('h1')?.textContent).toContain('Un vistazo a tu día');
+    expect(harness.routeNativeElement?.querySelector('h1')?.textContent).toContain('Todo en perspectiva');
   });
 
   it('should combine contact filters and recover from empty results', async () => {

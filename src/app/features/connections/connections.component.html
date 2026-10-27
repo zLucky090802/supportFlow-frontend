@@ -1,0 +1,237 @@
+<main class="app" [class.compact]="compact()"><app-sidebar [compact]="compact()"
+        (compactChange)="compact.set($event)" />
+    <section class="page">
+        <a class="back" routerLink="/settings" [queryParams]="{ section: 'channels' }">← Volver a Settings</a>
+        <header class="top">
+            <div>
+                <p class="eyebrow">SETTINGS / CANALES</p>
+                <h1>Conecta con tus clientes</h1>
+                <p class="subtitle">Todos tus mensajes, en un mismo lugar. Tú eliges dónde estar.</p>
+            </div><button class="primary" id="new-connection" (click)="view.set('ready'); step.set('provider')">＋
+                Conectar canal</button>
+        </header>
+        <section id="overview" [hidden]="step() !== 'overview' || view() !== 'ready'">
+            <div class="connection-summary"><span class="badge">{{ activeCount() }} conexiones activas ·
+                    Demo</span><span>Espacio de trabajo: Support Flow</span></div>
+            <div class="channel-grid">@for (connection of links(); track connection.provider) {<article
+                    class="channel-card">
+                    <div class="channel-card-top"><span class="channel-icon"
+                            [class.instagram]="connection.provider === 'Instagram'"
+                            [class.email]="connection.provider === 'Correo'">{{ connection.icon }}</span><span
+                            class="badge" [class.paused]="connection.state === 'Requiere atención'"
+                            [class.draft]="connection.state === 'Sin conectar'">{{ connection.state }}</span></div>
+                    <h2>{{ connection.provider }}</h2>
+                    <p>{{ connection.label }}</p>
+                    <div class="account-label">{{ connection.account }}<small>{{ connection.state === 'Conectado' ?
+                            'Cuenta de ejemplo vinculada' : connection.state === 'Requiere atención' ? 'Autorización de
+                            ejemplo vencida' : 'Cuenta de ejemplo · Sin conexión' }}</small></div>
+                    <div class="channel-foot"><span>{{ connection.state === 'Conectado' ? 'Disponible para el equipo' :
+                            'Pendiente de vinculación' }}</span>@if (connection.state === 'Conectado') {<button
+                            (click)="provider.set(connection.provider); detailDialog.showModal()">Ver conexión
+                            ↗</button>} @else {<button (click)="start(connection.provider)">{{ connection.state ===
+                            'Requiere atención' ? 'Reconectar' : 'Conectar' }} ↗</button>}</div>
+                </article>}</div>
+            <div class="connection-bottom">
+                <section class="panel">
+                    <div class="panel-header">
+                        <h2>Lo que cambia al conectar un canal</h2>
+                    </div>
+                    <div class="panel-body">
+                        <ul class="connection-benefits">
+                            <li><span>01</span>
+                                <div><strong>Una bandeja compartida</strong>
+                                    <p>El equipo podrá atender las nuevas conversaciones del canal.</p>
+                                </div>
+                            </li>
+                            <li><span>02</span>
+                                <div><strong>Tú decides quién responde</strong>
+                                    <p>Vincular una cuenta no activa automáticamente un agente de IA.</p>
+                                </div>
+                            </li>
+                            <li><span>03</span>
+                                <div><strong>Control de la conexión</strong>
+                                    <p>Consulta el estado, revisa la cuenta o desconéctala con confirmación.</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+                <aside class="note connection-note">
+                    <div><strong>La autorización sucede con el proveedor</strong>
+                        <p>No pediremos tu contraseña de WhatsApp, Instagram o correo dentro de Support Flow.</p>
+                        <p class="help">Flujo de producto propuesto. Los pasos concretos de cada proveedor se validarán
+                            al integrar el backend.</p>
+                    </div>
+                </aside>
+            </div>
+        </section>
+        <section id="wizard" [hidden]="step() === 'overview' || view() !== 'ready'" class="wizard">
+            <div class="wizard-heading"><button id="wizard-back" (click)="cancel()" class="text-button">← Volver a
+                    canales</button><span class="pill">Vinculación de ejemplo</span></div>
+            <ol class="wizard-steps" aria-label="Progreso de vinculación">
+                <li [class.active]="step() === 'provider'" [attr.aria-current]="step() === 'provider' ? 'step' : null">
+                    <span>1</span>Canal</li>
+                <li [class.active]="step() === 'authorize'"
+                    [attr.aria-current]="step() === 'authorize' ? 'step' : null"><span>2</span>Autorizar</li>
+                <li [class.active]="step() === 'account'" [attr.aria-current]="step() === 'account' ? 'step' : null">
+                    <span>3</span>Cuenta</li>
+                <li [class.active]="step() === 'success'" [attr.aria-current]="step() === 'success' ? 'step' : null">
+                    <span>4</span>Listo</li>
+            </ol>
+            <div class="panel wizard-panel">
+                <section [hidden]="step() !== 'provider'">
+                    <div class="panel-header">
+                        <div>
+                            <h2>¿Qué canal quieres conectar?</h2>
+                            <p class="subtle">Comienza por el lugar donde tus clientes te escriben.</p>
+                        </div>
+                    </div>
+                    <div class="panel-body provider-options"><button (click)="start('WhatsApp')"><span
+                                class="channel-icon">W</span><strong>WhatsApp</strong><small>Atención desde tu número de
+                                negocio</small><span class="provider-arrow">→</span></button><button
+                            (click)="start('Instagram')"><span
+                                class="channel-icon instagram">◎</span><strong>Instagram</strong><small>Mensajes del
+                                perfil de tu marca</small><span class="provider-arrow">→</span></button><button
+                            (click)="start('Correo')"><span
+                                class="channel-icon email">✉</span><strong>Correo</strong><small>Una cuenta de soporte
+                                compartida</small><span class="provider-arrow">→</span></button></div>
+                </section>
+                <section [hidden]="step() !== 'authorize'">
+                    <div class="panel-header">
+                        <div>
+                            <h2>Autorizar <span>{{ provider() }}</span></h2>
+                            <p class="subtle">La conexión seguirá bajo tu control.</p>
+                        </div><span class="badge draft">Pendiente</span>
+                    </div>
+                    <div class="panel-body authorization-body"><span class="large-link-icon">↗</span>
+                        <h3>Continuarías con el proveedor</h3>
+                        <p>En la integración de {{ provider() }}, revisarías tu cuenta y autorizarías el acceso
+                            necesario con su proveedor. El mecanismo exacto se validará al conectar el backend.</p>
+                        <div class="permission-preview"><strong>Antes de continuar</strong>
+                            <p>Revisa qué cuenta estás autorizando y los permisos solicitados. Al volver, podrás elegir
+                                la cuenta que usará el equipo.</p>
+                        </div>
+                        <p class="help">Esta maqueta no abre sitios externos, no solicita credenciales y no concede
+                            permisos.</p>
+                    </div>
+                    <div class="actions"><button (click)="cancel()">Cancelar</button><button class="primary"
+                            id="authorize-success" (click)="step.set('account')">Simular autorización →</button></div>
+                    <div class="scenario-links"><span>Revisar otros resultados:</span><button id="authorize-error"
+                            (click)="error('authorization')">Error de autorización</button><button id="authorize-cancel"
+                            (click)="error('cancel')">Permiso cancelado</button></div>
+                </section>
+                <section [hidden]="step() !== 'account'">
+                    <div class="panel-header">
+                        <div>
+                            <h2>Elige la cuenta de <span>{{ provider() }}</span></h2>
+                            <p class="subtle">Solo la cuenta elegida se vincularía a este espacio.</p>
+                        </div><span class="badge">Autorización simulada</span>
+                    </div>
+                    <form id="account-form" (ngSubmit)="connect()">
+                        <div class="panel-body">
+                            <fieldset class="account-options">
+                                <legend class="eyeline">CUENTAS DISPONIBLES · EJEMPLO</legend><label
+                                    class="account-choice"><input type="radio" name="account" value="primary"
+                                        [(ngModel)]="account" required><span><strong>{{ selected().primary
+                                            }}</strong><small>Cuenta principal · Acceso
+                                            disponible</small></span></label><label class="account-choice"><input
+                                        type="radio" name="account" value="secondary" [(ngModel)]="account"
+                                        required><span><strong>{{ selected().secondary }}</strong><small>Cuenta
+                                            secundaria · Acceso disponible</small></span></label>
+                            </fieldset><label class="field">Nombre para identificar el canal<input name="channelName"
+                                    [(ngModel)]="channelName" required maxlength="60"
+                                    placeholder="Ej. Soporte principal"><small>Este nombre será visible para tu
+                                    equipo.</small></label>
+                            <p class="error-text" role="alert">{{ accountError() }}</p>
+                            <div class="note">
+                                <p>Espacio de destino: <strong>Support Flow</strong>. Revisa la cuenta antes de
+                                    confirmar.</p>
+                            </div>
+                        </div>
+                        <div class="actions"><button type="button" id="account-back"
+                                (click)="step.set('authorize')">Atrás</button><button type="submit"
+                                class="primary">Vincular cuenta de ejemplo</button></div>
+                    </form>
+                    <div class="scenario-links"><button id="no-accounts" (click)="error('accounts')">Ver estado sin
+                            cuentas disponibles</button></div>
+                </section>
+                <section [hidden]="step() !== 'success'">
+                    <div class="result-panel"><span class="result-icon">✓</span>
+                        <p class="eyebrow">TODO LISTO · DEMO</p>
+                        <h2>Tu canal está listo para el equipo</h2>
+                        <p>{{ provider() }} · {{ selected().account }} · {{ selected().label }}</p>
+                        <div class="result-summary"><span>Espacio de trabajo</span><strong>Support
+                                Flow</strong><span>Agente de IA</span><strong>Sin asignar</strong></div>
+                        <p class="help">Vinculación simulada. No se conectó ninguna cuenta ni se recibirán mensajes
+                            reales.</p>
+                        <div class="result-actions"><button class="primary" id="finish-connection"
+                                (click)="overview()">Volver a canales</button><a class="button"
+                                routerLink="/ai-agent">Revisar agentes ↗</a></div>
+                    </div>
+                </section>
+                <section [hidden]="step() !== 'error'">
+                    <div class="result-panel"><span class="result-icon error-icon">!</span>
+                        <p class="eyebrow">SIN CAMBIOS EN TU CUENTA</p>
+                        <h2>{{ errorTitle() }}</h2>
+                        <p>{{ errorCopy() }}</p>
+                        <div class="result-actions"><button class="primary" id="retry-authorization"
+                                (click)="start(provider())">Intentar de nuevo</button><button (click)="cancel()">Volver
+                                a canales</button></div>
+                    </div>
+                </section>
+            </div>
+        </section>
+        <section class="state-box" id="global-state" [hidden]="view() === 'ready'" aria-live="polite"
+            [attr.aria-busy]="view() === 'loading'">
+            <h2>{{ view() === 'loading' ? 'Consultando conexiones' : view() === 'error' ? 'No pudimos cargar los
+                canales' : 'Tu primera conexión empieza aquí' }}</h2>
+            <p>Estado de ejemplo. No se ha modificado ninguna cuenta.</p><button id="restore-global"
+                (click)="overview()">Volver a canales</button>
+        </section>
+        <p class="feedback" role="status">{{ feedback() }}</p>
+        <footer class="demo-note"><span>Demostración · Sin conexión al backend · Los cambios se reinician al
+                recargar.</span><label>Estado de la vista <select [ngModel]="view()" (ngModelChange)="view.set($event)">
+                    <option value="ready">Con canales</option>
+                    <option value="empty">Sin canales</option>
+                    <option value="loading">Cargando</option>
+                    <option value="error">Error de carga</option>
+                </select></label></footer>
+    </section>
+</main>
+<dialog id="detail-dialog" #detailDialog aria-labelledby="detail-title">
+    <form method="dialog" class="dialog-close"><button aria-label="Cerrar detalle">×</button></form>
+    <p class="eyebrow">CUENTA VINCULADA · DEMO</p>
+    <h2 id="detail-title">{{ provider() }} · {{ selected().label }}</h2><span class="badge">{{ selected().state
+        }}</span>
+    <dl class="connection-dl">
+        <div>
+            <dt>Cuenta</dt>
+            <dd>{{ selected().account }}</dd>
+        </div>
+        <div>
+            <dt>Espacio</dt>
+            <dd>Support Flow</dd>
+        </div>
+        <div>
+            <dt>Estado</dt>
+            <dd>{{ selected().state }}</dd>
+        </div>
+        <div>
+            <dt>Agente de IA</dt>
+            <dd>Sin asignar</dd>
+        </div>
+    </dl>
+    <p>No hay una conexión real. Estos datos solo ilustran cómo consultarías la vinculación.</p>
+    <div class="dialog-actions"><button id="detail-reconnect"
+            (click)="detailDialog.close(); start(provider())">Reconectar</button><button class="danger-button"
+            id="request-disconnect" (click)="detailDialog.close(); disconnectDialog.showModal()">Desconectar</button>
+    </div>
+</dialog>
+<dialog id="disconnect-dialog" #disconnectDialog aria-labelledby="disconnect-title">
+    <h2 id="disconnect-title">¿Desconectar {{ provider() }}?</h2>
+    <p>En el producto dejarían de llegar mensajes nuevos de este canal. Esta acción de ejemplo no borra conversaciones
+        ni modifica una cuenta real.</p>
+    <div class="dialog-actions"><button id="keep-connected" (click)="disconnectDialog.close()">Mantener
+            conexión</button><button id="confirm-disconnect" (click)="disconnect(); disconnectDialog.close()"
+            class="danger-button">Desconectar ejemplo</button></div>
+</dialog>

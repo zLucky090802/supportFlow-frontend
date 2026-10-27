@@ -1,0 +1,9 @@
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { AdminDemoStore } from './admin-demo.store';
+import { AdminShellComponent } from './admin-shell.component';
+@Component({selector:'app-switch-team',imports:[AdminShellComponent],styleUrls:['./admin-shared.scss','./switch-team.component.scss'],changeDetection:ChangeDetectionStrategy.OnPush,
+template:`<app-admin-shell><p class="feedback" role="status">{{feedback()}}</p><div class="switch-layout"><section class="panel"><div class="panel-header"><div><h2>¿En qué equipo vas a trabajar?</h2><p class="subtle">Selecciona el contexto de tu próxima sesión.</p></div></div><div class="panel-body">@for(team of store.accessibleTeams();track team.id){<button class="switch-row" [class.current]="store.activeTeamId()===team.id" [attr.aria-pressed]="store.activeTeamId()===team.id" (click)="switchTeam(team.id)"><span class="avatar">{{team.initials}}</span><span><strong>{{team.name}}</strong><small>Acceso de administrador · Demo</small></span><span [class.badge]="store.activeTeamId()===team.id">{{store.activeTeamId()===team.id?'Actual':'Entrar →'}}</span></button>}</div></section><aside class="panel"><div class="panel-body"><h3>Cambiar contexto, no pertenencia</h3><p>Este selector cambia el equipo activo de demostración. No traslada usuarios ni modifica sus permisos.</p><div class="divider"></div><p>Solo se ofrecerían los equipos a los que tienes acceso. Aquí se muestran tres ejemplos; las conversaciones y métricas todavía no se consultan por equipo al backend.</p></div></aside></div></app-admin-shell>`})
+export class SwitchTeamComponent {
+  readonly store=inject(AdminDemoStore);readonly feedback=signal('');
+  switchTeam(id:string):void {if(this.store.switchTeam(id))this.feedback.set('Contexto de ejemplo cambiado a '+this.store.activeTeam().name+'. Ninguna persona fue trasladada.');}
+}

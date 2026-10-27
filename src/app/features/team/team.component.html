@@ -2,7 +2,7 @@
   <app-sidebar [compact]="compact()" (compactChange)="compact.set($event)" />
   <section class="team-page" aria-labelledby="team-title">
     <header class="top"><div><p class="eyebrow">TU ESPACIO DE TRABAJO</p><h1 id="team-title">Team</h1><p class="subtitle">Las personas que hacen posible una buena atención.</p></div>
-      <button type="button" class="primary" (click)="invitationInfo.showModal()">＋ Invitar integrante</button>
+      <a class="primary" routerLink="/team/invitar">＋ Invitar integrante</a>
     </header>
     @if (view() === 'default') {
       <div class="summary-strip" aria-label="Resumen del equipo">
@@ -67,9 +67,4 @@
     <footer class="team-review"><span>Team · Datos de ejemplo · Sin conexión al backend</span><label>Vista de demostración <select [ngModel]="view()" (ngModelChange)="view.set($event)"><option value="default">Con integrantes</option><option value="empty">Equipo vacío</option><option value="loading">Cargando</option><option value="error">Error de carga</option></select></label></footer>
   </section>
 </main>
-<dialog #invitationInfo aria-labelledby="invitation-title" aria-describedby="invitation-description">
-  <h2 id="invitation-title">Invitar integrante</h2>
-  <p id="invitation-description">El formulario de invitación se diseñará en el siguiente paso. Esta pantalla usa datos de ejemplo y no envía correos ni modifica permisos.</p>
-  <form method="dialog"><button>Cerrar</button></form>
-</dialog>
 
