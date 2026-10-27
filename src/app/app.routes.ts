@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
+  { path: 'login', title: 'Support Flow — Iniciar sesión', loadComponent: () => import('./features/access/login.component').then(m => m.LoginComponent) },
   { path: 'knowledge-base/documentos', title: 'Support Flow — Documentos', loadComponent: () => import('./features/knowledge-base/documents.component').then(m => m.DocumentsComponent) },
   { path: 'settings/canales', title: 'Support Flow — Conexiones', loadComponent: () => import('./features/connections/connections.component').then(m => m.ConnectionsComponent) },
   { path: 'cambiar-equipo', title: 'Support Flow — Cambiar equipo', loadComponent: () => import('./features/admin/switch-team.component').then(m => m.SwitchTeamComponent) },
