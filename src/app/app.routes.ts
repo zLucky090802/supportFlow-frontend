@@ -1,14 +1,16 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
-  { path: 'restablecer-acceso', title: 'Support Flow — Nueva contraseña', loadComponent: () => import('./features/access/reset-access.component').then(m => m.ResetAccessComponent) },
-  { path: 'recuperar-acceso', title: 'Support Flow — Recuperar acceso', loadComponent: () => import('./features/access/recover-access.component').then(m => m.RecoverAccessComponent) },
-  { path: 'login', title: 'Support Flow — Iniciar sesión', loadComponent: () => import('./features/access/login.component').then(m => m.LoginComponent) },
-  { path: 'knowledge-base/documentos', title: 'Support Flow — Documentos', loadComponent: () => import('./features/knowledge-base/documents.component').then(m => m.DocumentsComponent) },
   { path: 'settings/canales', title: 'Support Flow — Conexiones', loadComponent: () => import('./features/connections/connections.component').then(m => m.ConnectionsComponent) },
-  { path: 'cambiar-equipo', title: 'Support Flow — Cambiar equipo', loadComponent: () => import('./features/admin/switch-team.component').then(m => m.SwitchTeamComponent) },
-  { path: 'admin/equipos', title: 'Support Flow — Equipos', loadComponent: () => import('./features/admin/admin-teams.component').then(m => m.AdminTeamsComponent) },
   { path: 'admin/usuarios', title: 'Support Flow — Usuarios', loadComponent: () => import('./features/admin/admin-users.component').then(m => m.AdminUsersComponent) },
+  { path: 'admin/equipos', title: 'Support Flow — Equipos', loadComponent: () => import('./features/admin/admin-teams.component').then(m => m.AdminTeamsComponent) },
+  { path: 'cambiar-equipo', title: 'Support Flow — Cambiar equipo', loadComponent: () => import('./features/admin/switch-team.component').then(m => m.SwitchTeamComponent) },
+  { path: 'knowledge-base/documentos', title: 'Support Flow — Documentos', loadComponent: () => import('./features/knowledge-base/documents.component').then(m => m.DocumentsComponent) },
+  { path: 'login', title: 'Support Flow — Iniciar sesión', loadComponent: () => import('./features/access/login.component').then(m => m.LoginComponent) },
+  { path: 'recuperar-acceso', title: 'Support Flow — Recuperar acceso', loadComponent: () => import('./features/access/recover-access.component').then(m => m.RecoverAccessComponent) },
+  { path: 'restablecer-acceso', title: 'Support Flow — Nueva contraseña', loadComponent: () => import('./features/access/reset-access.component').then(m => m.ResetAccessComponent) },
+  { path: 'invitacion', title: 'Support Flow — Aceptar invitación', loadComponent: () => import('./features/access/accept-invitation.component').then(m => m.AcceptInvitationComponent) },
+  { path: 'enlace-vencido', title: 'Support Flow — Enlace vencido', loadComponent: () => import('./features/access/expired-link.component').then(m => m.ExpiredLinkComponent) },
   { path: 'ai-agent/:id/activar', title: 'Support Flow — Activar agente', loadComponent: () => import('./features/ai-agent/agent-activation.component').then(m => m.AgentActivationComponent) },
   { path: 'team/invitar', title: 'Support Flow — Invitar integrante', loadComponent: () => import('./features/team/team-invitation.component').then(m => m.TeamInvitationComponent) },
   { path: 'settings', title: 'Support Flow — Settings', loadComponent: () => import('./features/settings/settings.component').then(m => m.SettingsComponent) },
