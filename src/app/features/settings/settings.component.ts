@@ -26,8 +26,6 @@ export class SettingsComponent {
   readonly section = signal<SettingsSection>('workspace');
   readonly view = signal<SettingsView>('ready');
   readonly feedback = signal('');
-  readonly dialogTitle = signal('');
-  readonly dialogDescription = signal('');
   readonly sections: readonly { id: SettingsSection; label: string }[] = [
     { id: 'workspace', label: 'Espacio de trabajo' }, { id: 'profile', label: 'Mi perfil' },
     { id: 'channels', label: 'Canales' }, { id: 'hours', label: 'Horario de atención' },
@@ -66,12 +64,5 @@ export class SettingsComponent {
     this.feedback.set(section === 'hours'
       ? 'Horario guardado de forma simulada. No se modificó el horario real ni se enviaron mensajes.'
       : 'Cambios guardados de forma simulada. No se modificó información real. Los cambios se perderán al salir o recargar.');
-  }
-  openChannel(channel: string, dialog: HTMLDialogElement): void {
-    this.dialogTitle.set(channel === 'WhatsApp' ? 'Conexión de WhatsApp · Demo' : `Conectar ${channel}`);
-    this.dialogDescription.set(channel === 'WhatsApp'
-      ? 'Aquí se mostrarían los datos de la conexión y la cuenta autorizada. No hay una cuenta real conectada.'
-      : 'En el producto continuarías a la autorización segura del proveedor. Esta vista solo permite revisar el paso previo; no se solicitarán credenciales ni se abrirá una conexión real.');
-    dialog.showModal();
   }
 }

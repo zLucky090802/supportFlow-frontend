@@ -37,10 +37,7 @@
             }
             @case ('channels') {
               <section class="panel"><div class="panel-header"><div><h2>Canales de atención</h2><p class="subtle">Conexiones de ejemplo, no cuentas reales.</p></div></div>
-                <div class="connection"><span class="icon-box"><app-icon name="whatsapp" /></span><div><strong>WhatsApp</strong><small>Soporte principal · Cuenta de ejemplo</small></div><span class="badge">Conectado · Demo</span><button type="button" (click)="openChannel('WhatsApp', channelDialog)">Ver conexión</button></div>
-                <div class="connection"><span class="icon-box"><app-icon name="email" /></span><div><strong>Correo</strong><small>Pendiente de conectar</small></div><button type="button" (click)="openChannel('Correo', channelDialog)">Conectar</button></div>
-                <div class="connection"><span class="icon-box"><app-icon name="instagram" /></span><div><strong>Instagram</strong><small>Pendiente de conectar</small></div><button type="button" (click)="openChannel('Instagram', channelDialog)">Conectar</button></div>
-                <div class="panel-body"><p class="help">La autorización con cada proveedor se definirá según la integración disponible. Nunca se solicitarán contraseñas del proveedor dentro de este formulario.</p></div>
+                <div class="panel-body"><p class="help">Administra WhatsApp, Instagram y correo desde el listado de conexiones.</p><a class="primary" routerLink="/settings/canales">Gestionar conexiones →</a></div>
               </section><div class="note channel-note"><app-icon name="sparkles" /><p>Conectar un canal no activa automáticamente un agente de IA. Su asignación se revisa por separado.</p></div>
             }
             @case ('hours') {
@@ -65,4 +62,3 @@
     <footer class="review-strip"><span>Datos de ejemplo · Sin conexión al backend<br>No se guardan cambios reales.</span><label>Vista de prueba <select #viewSelect [value]="view()" (change)="changeView(viewSelect.value)"><option value="ready">Con información</option><option value="empty">Sin información</option><option value="loading">Cargando</option><option value="error">Error de carga</option></select></label></footer>
   </section>
 </main>
-<dialog #channelDialog aria-labelledby="channel-title" aria-describedby="channel-description"><h2 id="channel-title">{{ dialogTitle() }}</h2><p id="channel-description">{{ dialogDescription() }}</p><form method="dialog"><button autofocus>Cerrar</button></form></dialog>

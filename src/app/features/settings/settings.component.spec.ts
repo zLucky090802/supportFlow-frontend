@@ -10,7 +10,7 @@ describe('Settings', () => {
     const harness = await RouterTestingHarness.create();
     const page = await harness.navigateByUrl('/settings?section=channels', SettingsComponent);
     expect(page.section()).toBe('channels');
-    expect(harness.routeNativeElement!.textContent).toContain('Conectado · Demo');
+    expect(harness.routeNativeElement!.querySelector('a[href="/settings/canales"]')).not.toBeNull();
     await harness.navigateByUrl('/settings?section=unknown');
     expect(page.section()).toBe('workspace');
   });
@@ -41,13 +41,11 @@ describe('Settings', () => {
     expect(page.feedback()).toContain('Horario guardado de forma simulada');
   });
 
-  it('opens channel information without implying real authorization and recovers demo errors', async () => {
+  it('links to channel management and recovers demo errors', async () => {
     const harness = await RouterTestingHarness.create();
     const page = await harness.navigateByUrl('/settings?section=channels', SettingsComponent);
-    const dialog = harness.routeNativeElement!.querySelector<HTMLDialogElement>('dialog')!;
-    page.openChannel('Instagram', dialog); harness.detectChanges();
-    expect(dialog.open).toBeTrue(); expect(dialog.textContent).toContain('no se solicitarán credenciales');
-    dialog.close(); page.changeView('error'); harness.detectChanges();
+    expect(harness.routeNativeElement!.querySelector('a[href="/settings/canales"]')).not.toBeNull();
+    page.changeView('error'); harness.detectChanges();
     expect(harness.routeNativeElement!.querySelector('.state-box')?.textContent).toContain('No pudimos cargar');
     harness.routeNativeElement!.querySelector<HTMLButtonElement>('.state-box button')!.click();
     expect(page.view()).toBe('ready');
