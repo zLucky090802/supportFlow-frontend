@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
+  { path: 'admin/usuarios', title: 'Support Flow — Usuarios', loadComponent: () => import('./features/admin/admin-users.component').then(m => m.AdminUsersComponent) },
   { path: 'ai-agent/:id/activar', title: 'Support Flow — Activar agente', loadComponent: () => import('./features/ai-agent/agent-activation.component').then(m => m.AgentActivationComponent) },
   { path: 'team/invitar', title: 'Support Flow — Invitar integrante', loadComponent: () => import('./features/team/team-invitation.component').then(m => m.TeamInvitationComponent) },
   { path: 'settings', title: 'Support Flow — Settings', loadComponent: () => import('./features/settings/settings.component').then(m => m.SettingsComponent) },
