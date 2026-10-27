@@ -75,7 +75,7 @@ describe('Approved Team page', () => {
   it('enables the dashboard team link and retains sidebar collapse', async () => {
     const harness = await RouterTestingHarness.create();
     await harness.navigateByUrl('/dashboard', DashboardComponent);
-    const link = harness.routeNativeElement!.querySelector<HTMLAnchorElement>('a.card-link[href="/team"]')!;
+    const link = harness.routeNativeElement!.querySelector<HTMLAnchorElement>('app-sidebar a[href="/team"]')!;
     expect(link).not.toBeNull();
     const team = await harness.navigateByUrl(link.getAttribute('href')!, TeamComponent);
     harness.routeNativeElement!.querySelector<HTMLButtonElement>('app-sidebar .collapse')!.click(); harness.detectChanges();
