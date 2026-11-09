@@ -1,10 +1,11 @@
 export interface Contact {
   id: number;
+  apiId?: string;
   name: string;
   email: string;
   initials: string;
-  channel: 'WhatsApp' | 'Correo' | 'Instagram';
-  tag: 'Cliente' | 'VIP' | 'Prospecto';
+  channel: 'WhatsApp' | 'Correo' | 'Instagram' | 'No disponible';
+  tag: 'Cliente' | 'VIP' | 'Prospecto' | 'No disponible';
   time: string;
   owner: string;
   tone: string;
@@ -12,7 +13,7 @@ export interface Contact {
   starred?: boolean;
   since?: string;
   note?: string;
-  conversationId?: number;
+  conversationId?: number | string;
 }
 
 export const CONTACTS: readonly Contact[] = [

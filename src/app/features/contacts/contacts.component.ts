@@ -4,7 +4,11 @@ import { RouterLink } from '@angular/router';
 import { AppSidebarComponent } from '../../shared/components/app-sidebar/app-sidebar.component';
 import { AppIconComponent } from '../../shared/components/app-icon/app-icon.component';
 import { Contact } from './contacts.data';
-import { ContactDraft, ContactsStore, parseContactsCsv } from './contacts.store';
+import { ContactDraft, parseContactsCsv } from './contacts.store';
+import { HttpErrorResponse } from '@angular/common/http';
+import { SupportFlowApiService, CustomerRecord, ConversationRecord } from '../../core/supportflow-api.service';
+import { catchError, forkJoin, of } from 'rxjs';
+import { AuthSessionService } from '../../core/auth/auth-session.service';
 
 type ContactGroup = 'all' | 'recent' | 'starred';
 const normalize = (text: string): string => text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es');
@@ -17,8 +21,11 @@ const normalize = (text: string): string => text.normalize('NFD').replace(/[\u03
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ContactsComponent {
-  readonly store = inject(ContactsStore);
-  readonly contacts = this.store.contacts;
+  readonly api = inject(SupportFlowApiService);
+  private readonly auth = inject(AuthSessionService);
+  readonly contacts = signal<Contact[]>([]);
+  readonly loading = signal(true);
+  readonly loadError = signal('');
   readonly notice = signal('');
   readonly error = signal('');
   readonly importing = signal(false);
@@ -49,6 +56,38 @@ export class ContactsComponent {
     const contacts = this.filteredContacts();
     return contacts.find(c => c.id === this.selectedId()) ?? contacts[0] ?? null;
   });
+
+  constructor() { this.load(); }
+
+  load(): void {
+    this.loading.set(true); this.loadError.set('');
+    forkJoin({ customers: this.api.getCustomers(), conversations: this.api.getConversations().pipe(catchError(() => of([]))) }).subscribe({
+      next: ({ customers, conversations }) => {
+        this.contacts.set(customers.map((customer, index) => this.toContact(customer, conversations, index + 1)));
+        this.selectedId.set(customers.length ? 1 : 0); this.loading.set(false);
+      },
+      error: (error: unknown) => {
+        this.loading.set(false);
+        this.loadError.set(error instanceof HttpErrorResponse && error.status === 403
+          ? 'Tu rol no tiene permiso para consultar la lista de clientes.'
+          : 'No pudimos cargar los clientes. Comprueba el backend e inténtalo de nuevo.');
+      },
+    });
+  }
+
+  private toContact(customer: CustomerRecord, conversations: ConversationRecord[] = [], localId = 0): Contact {
+    const name = customer.name.trim();
+    const created = customer.created_at ? new Date(customer.created_at) : null;
+    const validCreated = created && !Number.isNaN(created.getTime());
+    const time = validCreated ? created.toLocaleDateString('es-CO', { day: 'numeric', month: 'short' }) : 'Fecha no disponible';
+    const recent = !!validCreated && Date.now() - created.getTime() <= 30 * 86400000;
+    return {
+      id: localId || Math.max(0, ...this.contacts().map(contact => contact.id)) + 1, apiId: customer.id, name, email: customer.email, initials: name.split(/\s+/).slice(0, 2).map(part => part[0]).join('').toUpperCase(),
+      channel: 'No disponible', tag: 'No disponible', time, owner: 'No disponible', tone: '#dce9df', recent,
+      conversationId: conversations.find(item => item.customer_id === customer.id)?.id,
+      since: validCreated ? `Cliente desde ${time}` : 'Cliente registrado', note: 'Canales, etiquetas y notas no están incluidos en el API de clientes.',
+    };
+  }
 
   clearFilters(): void {
     this.query.set(''); this.channel.set(''); this.tag.set(''); this.group.set('all');
@@ -87,14 +126,19 @@ export class ContactsComponent {
 
   save(dialog: HTMLDialogElement): void {
     this.error.set('');
-    if (this.reading() || (this.importing() && !this.preview().length)) return;
-    try {
-      const result = this.store.add(this.importing() ? this.preview() : [this.draft]);
-      if (!this.importing() && !result.added) { this.error.set('Ya existe un contacto con este correo.'); return; }
-      this.clearFilters();
-      if (result.firstId) this.selectedId.set(result.firstId);
-      this.notice.set(`${result.added} contacto(s) guardados en este navegador.${result.duplicates ? ` ${result.duplicates} duplicado(s) omitidos por correo.` : ''}`);
-      dialog.close();
-    } catch (error) { this.error.set(error instanceof Error ? error.message : 'No se pudieron guardar los contactos.'); }
+    if (this.reading() || this.importing()) { this.error.set('La API todavía no tiene una ruta para importar CSV.'); return; }
+    const user = this.auth.user();
+    if (!user) { this.error.set('Inicia sesión para crear un cliente.'); return; }
+    this.api.createCustomer(user.organization_id, this.draft.name, this.draft.email).subscribe({
+      next: customer => {
+        const contact = this.toContact(customer);
+        this.contacts.update(items => [...items, contact]); this.clearFilters(); this.selectedId.set(contact.id);
+        this.notice.set('Cliente creado en Support Flow.'); dialog.close();
+      },
+      error: (cause: unknown) => {
+        const status = cause instanceof HttpErrorResponse ? cause.status : 0;
+        this.error.set(status === 409 ? 'Ya existe un cliente con ese correo.' : status === 403 ? 'Tu rol no tiene permiso para crear clientes.' : 'No se pudo crear el cliente. Comprueba los datos e inténtalo de nuevo.');
+      },
+    });
   }
 }
