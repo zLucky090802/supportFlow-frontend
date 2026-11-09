@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { AdminDemoStore } from '../../../features/admin/admin-demo.store';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthSessionService } from '../../../core/auth/auth-session.service';
 import { AppIconComponent, AppIconName } from '../app-icon/app-icon.component';
 
 @Component({
@@ -12,8 +13,12 @@ import { AppIconComponent, AppIconName } from '../app-icon/app-icon.component';
 })
 export class AppSidebarComponent {
   readonly workspace = inject(AdminDemoStore);
+  readonly auth = inject(AuthSessionService);
+  private readonly router = inject(Router);
+  readonly profileInitials = computed(() => (this.auth.user()?.name ?? 'SF').split(/\s+/).slice(0, 2).map(part => part[0]).join('').toUpperCase());
   readonly compact = input(false);
   readonly compactChange = output<boolean>();
+  signOut(): void { this.auth.logout(); void this.router.navigateByUrl('/login'); }
   readonly items: ReadonlyArray<{ label: string; icon: AppIconName; path?: string }> = [
     { label: 'Home', icon: 'home', path: '/dashboard' },
     { label: 'Conversations', icon: 'inbox', path: '/bandeja' },

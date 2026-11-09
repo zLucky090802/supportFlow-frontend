@@ -1,0 +1,8 @@
+{
+  "/auth": { "target": "http://127.0.0.1:8000", "secure": false, "changeOrigin": true },
+  "/users": { "target": "http://127.0.0.1:8000", "secure": false, "changeOrigin": true },
+  "/customer": { "target": "http://127.0.0.1:8000", "secure": false, "changeOrigin": true },
+  "/conversations": { "target": "http://127.0.0.1:8000", "secure": false, "changeOrigin": true },
+  "/messages": { "target": "http://127.0.0.1:8000", "secure": false, "changeOrigin": true },
+  "/organizations": { "target": "http://127.0.0.1:8000", "secure": false, "changeOrigin": true }
+}
