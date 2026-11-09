@@ -1,7 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import { Store } from '@ngrx/store';
 import { AdminDemoStore } from '../../../features/admin/admin-demo.store';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { AuthSessionService } from '../../../core/auth/auth-session.service';
+import { logoutRequested } from '../../../core/auth/auth.actions';
+import { selectCurrentUser } from '../../../core/auth/auth.selectors';
 import { AppIconComponent, AppIconName } from '../app-icon/app-icon.component';
 
 @Component({
@@ -13,12 +15,13 @@ import { AppIconComponent, AppIconName } from '../app-icon/app-icon.component';
 })
 export class AppSidebarComponent {
   readonly workspace = inject(AdminDemoStore);
-  readonly auth = inject(AuthSessionService);
+  private readonly store = inject(Store);
+  readonly user = this.store.selectSignal(selectCurrentUser);
   private readonly router = inject(Router);
-  readonly profileInitials = computed(() => (this.auth.user()?.name ?? 'SF').split(/\s+/).slice(0, 2).map(part => part[0]).join('').toUpperCase());
+  readonly profileInitials = computed(() => (this.user()?.name ?? 'SF').split(/\s+/).slice(0, 2).map(part => part[0]).join('').toUpperCase());
   readonly compact = input(false);
   readonly compactChange = output<boolean>();
-  signOut(): void { this.auth.logout(); void this.router.navigateByUrl('/login'); }
+  signOut(): void { this.store.dispatch(logoutRequested()); void this.router.navigateByUrl('/login'); }
   readonly items: ReadonlyArray<{ label: string; icon: AppIconName; path?: string }> = [
     { label: 'Home', icon: 'home', path: '/dashboard' },
     { label: 'Conversations', icon: 'inbox', path: '/bandeja' },

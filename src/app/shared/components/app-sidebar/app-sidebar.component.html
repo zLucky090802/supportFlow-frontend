@@ -17,7 +17,7 @@
     <div class="label">ESPACIO DE TRABAJO</div>
     <a class="team" routerLink="/cambiar-equipo" title="Cambiar equipo de demostración" aria-label="Cambiar equipo de demostración"><span class="avatar">{{ workspace.activeTeam().initials }}</span><div>Support Flow<small>{{ workspace.activeTeam().name }}</small></div></a>
     <nav class="nav" aria-label="Configuración"><a routerLink="/settings" routerLinkActive="active" ariaCurrentWhenActive="page" title="Settings"><app-icon name="settings" [size]="19" /><span>Settings</span></a></nav>
-    <button class="profile" type="button" (click)="signOut()" title="Cerrar sesión"><span class="avatar">{{ profileInitials() }}</span><div>{{ auth.user()?.name ?? 'Cerrar sesión' }}<small>{{ auth.user()?.role ?? 'Salir' }}</small></div></button>
+    <button class="profile" type="button" (click)="signOut()" title="Cerrar sesión"><span class="avatar">{{ profileInitials() }}</span><div>{{ user()?.name ?? 'Cerrar sesión' }}<small>{{ user()?.role ?? 'Salir' }}</small></div></button>
   </div>
 </aside>
 

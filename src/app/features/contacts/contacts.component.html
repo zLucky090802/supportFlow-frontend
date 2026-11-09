@@ -41,7 +41,7 @@
   </aside>
 </main>
 <dialog #editor aria-labelledby="editor-title" aria-describedby="editor-description" (close)="cancelRead()" (cancel)="cancelRead()">
-  <form #contactForm="ngForm" (ngSubmit)="save(editor)">
+  <form #contactForm="ngForm" (ngSubmit)="save()">
     <h2 id="editor-title">{{ importing() ? 'Importar contactos' : 'Nuevo contacto' }}</h2>
     <p id="editor-description" class="dialog-description">Se guardará en la organización vinculada a tu sesión.</p>
     @if (importing()) {
@@ -61,6 +61,6 @@ Ana Pérez,ana&#64;ejemplo.com,WhatsApp,Cliente</pre>
       @if (emailField.invalid && emailField.touched) { <p class="error" role="alert">Introduce un correo electrónico válido.</p> }
     }
     @if (error()) { <p class="feedback error" role="alert">{{ error() }}</p> }
-    <div class="dialog-actions"><button type="button" (click)="editor.close()">Cancelar</button><button class="primary" type="submit" [disabled]="loading() || reading() || contactForm.invalid">Guardar cliente</button></div>
+    <div class="dialog-actions"><button type="button" (click)="editor.close()">Cancelar</button><button class="primary" type="submit" [disabled]="loading() || saving() || reading() || contactForm.invalid">{{ saving() ? 'Guardando…' : 'Guardar cliente' }}</button></div>
   </form>
 </dialog>

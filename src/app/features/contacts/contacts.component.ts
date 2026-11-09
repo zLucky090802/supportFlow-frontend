@@ -1,14 +1,17 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Actions, ofType } from '@ngrx/effects';
 import { AppSidebarComponent } from '../../shared/components/app-sidebar/app-sidebar.component';
 import { AppIconComponent } from '../../shared/components/app-icon/app-icon.component';
 import { Contact } from './contacts.data';
 import { ContactDraft, parseContactsCsv } from './contacts.store';
-import { HttpErrorResponse } from '@angular/common/http';
-import { SupportFlowApiService, CustomerRecord, ConversationRecord } from '../../core/supportflow-api.service';
-import { catchError, forkJoin, of } from 'rxjs';
-import { AuthSessionService } from '../../core/auth/auth-session.service';
+import { CustomerRecord, ConversationRecord } from '../../core/supportflow-api.service';
+import { selectCurrentUser } from '../../core/auth/auth.selectors';
+import { createCustomer, customerCreated, loadContacts } from '../../core/state/support-data.actions';
+import { selectContactConversations, selectContactsError, selectContactsLoading, selectCustomerCreateError, selectCustomerCreating, selectCustomers } from '../../core/state/support-data.selectors';
 
 type ContactGroup = 'all' | 'recent' | 'starred';
 const normalize = (text: string): string => text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es');
@@ -21,13 +24,19 @@ const normalize = (text: string): string => text.normalize('NFD').replace(/[\u03
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ContactsComponent {
-  readonly api = inject(SupportFlowApiService);
-  private readonly auth = inject(AuthSessionService);
-  readonly contacts = signal<Contact[]>([]);
-  readonly loading = signal(true);
-  readonly loadError = signal('');
+  private readonly store = inject(Store);
+  private readonly actions = inject(Actions);
+  readonly customerRecords = this.store.selectSignal(selectCustomers);
+  readonly conversationRecords = this.store.selectSignal(selectContactConversations);
+  readonly contacts = computed(() => this.customerRecords().map((customer, index) => this.toContact(customer, this.conversationRecords(), index + 1)));
+  readonly loading = this.store.selectSignal(selectContactsLoading);
+  readonly loadError = this.store.selectSignal(selectContactsError);
+  readonly saving = this.store.selectSignal(selectCustomerCreating);
+  readonly saveError = this.store.selectSignal(selectCustomerCreateError);
+  readonly user = this.store.selectSignal(selectCurrentUser);
   readonly notice = signal('');
-  readonly error = signal('');
+  readonly formError = signal('');
+  readonly error = computed(() => this.formError() || this.saveError() || '');
   readonly importing = signal(false);
   readonly preview = signal<ContactDraft[]>([]);
   readonly reading = signal(false);
@@ -39,6 +48,7 @@ export class ContactsComponent {
   readonly channel = signal('');
   readonly tag = signal('');
   readonly selectedId = signal(1);
+  readonly editorDialog = viewChild.required<ElementRef<HTMLDialogElement>>('editor');
   readonly groups = computed(() => [
     { id: 'all' as const, label: 'Todos', count: this.contacts().length },
     { id: 'recent' as const, label: 'Recientes', count: this.contacts().filter(c => c.recent).length },
@@ -57,22 +67,17 @@ export class ContactsComponent {
     return contacts.find(c => c.id === this.selectedId()) ?? contacts[0] ?? null;
   });
 
-  constructor() { this.load(); }
+  constructor() {
+    this.load();
+    this.actions.pipe(ofType(customerCreated), takeUntilDestroyed()).subscribe(({ customer }) => {
+      const contact = this.toContact(customer);
+      this.clearFilters(); this.selectedId.set(contact.id); this.notice.set('Cliente creado en Support Flow.');
+      this.editorDialog().nativeElement.close();
+    });
+  }
 
   load(): void {
-    this.loading.set(true); this.loadError.set('');
-    forkJoin({ customers: this.api.getCustomers(), conversations: this.api.getConversations().pipe(catchError(() => of([]))) }).subscribe({
-      next: ({ customers, conversations }) => {
-        this.contacts.set(customers.map((customer, index) => this.toContact(customer, conversations, index + 1)));
-        this.selectedId.set(customers.length ? 1 : 0); this.loading.set(false);
-      },
-      error: (error: unknown) => {
-        this.loading.set(false);
-        this.loadError.set(error instanceof HttpErrorResponse && error.status === 403
-          ? 'Tu rol no tiene permiso para consultar la lista de clientes.'
-          : 'No pudimos cargar los clientes. Comprueba el backend e inténtalo de nuevo.');
-      },
-    });
+    this.store.dispatch(loadContacts());
   }
 
   private toContact(customer: CustomerRecord, conversations: ConversationRecord[] = [], localId = 0): Contact {
@@ -82,7 +87,7 @@ export class ContactsComponent {
     const time = validCreated ? created.toLocaleDateString('es-CO', { day: 'numeric', month: 'short' }) : 'Fecha no disponible';
     const recent = !!validCreated && Date.now() - created.getTime() <= 30 * 86400000;
     return {
-      id: localId || Math.max(0, ...this.contacts().map(contact => contact.id)) + 1, apiId: customer.id, name, email: customer.email, initials: name.split(/\s+/).slice(0, 2).map(part => part[0]).join('').toUpperCase(),
+      id: localId || Math.max(0, this.customerRecords().findIndex(item => item.id === customer.id) + 1), apiId: customer.id, name, email: customer.email, initials: name.split(/\s+/).slice(0, 2).map(part => part[0]).join('').toUpperCase(),
       channel: 'No disponible', tag: 'No disponible', time, owner: 'No disponible', tone: '#dce9df', recent,
       conversationId: conversations.find(item => item.customer_id === customer.id)?.id,
       since: validCreated ? `Cliente desde ${time}` : 'Cliente registrado', note: 'Canales, etiquetas y notas no están incluidos en el API de clientes.',
@@ -95,7 +100,7 @@ export class ContactsComponent {
 
   openDialog(dialog: HTMLDialogElement, importing: boolean): void {
     this.fileVersion++; this.reading.set(false); this.importing.set(importing);
-    this.preview.set([]); this.error.set('');
+    this.preview.set([]); this.formError.set('');
     this.draft = { name: '', email: '', channel: 'WhatsApp', tag: 'Cliente' };
     dialog.showModal();
   }
@@ -106,10 +111,10 @@ export class ContactsComponent {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     const version = ++this.fileVersion;
-    this.preview.set([]); this.error.set(''); this.reading.set(false);
+    this.preview.set([]); this.formError.set(''); this.reading.set(false);
     if (!file) return;
     if (!file.name.toLowerCase().endsWith('.csv') || file.size > 1024 * 1024) {
-      this.error.set('Selecciona un archivo CSV de hasta 1 MB.'); input.value = ''; return;
+      this.formError.set('Selecciona un archivo CSV de hasta 1 MB.'); input.value = ''; return;
     }
     this.reading.set(true);
     try {
@@ -117,28 +122,18 @@ export class ContactsComponent {
       if (version !== this.fileVersion) return;
       this.preview.set(parseContactsCsv(text));
     } catch (error) {
-      if (version === this.fileVersion) this.error.set(error instanceof Error ? error.message : 'No se pudo leer el archivo.');
+      if (version === this.fileVersion) this.formError.set(error instanceof Error ? error.message : 'No se pudo leer el archivo.');
     } finally {
       if (version === this.fileVersion) this.reading.set(false);
       input.value = '';
     }
   }
 
-  save(dialog: HTMLDialogElement): void {
-    this.error.set('');
-    if (this.reading() || this.importing()) { this.error.set('La API todavía no tiene una ruta para importar CSV.'); return; }
-    const user = this.auth.user();
-    if (!user) { this.error.set('Inicia sesión para crear un cliente.'); return; }
-    this.api.createCustomer(user.organization_id, this.draft.name, this.draft.email).subscribe({
-      next: customer => {
-        const contact = this.toContact(customer);
-        this.contacts.update(items => [...items, contact]); this.clearFilters(); this.selectedId.set(contact.id);
-        this.notice.set('Cliente creado en Support Flow.'); dialog.close();
-      },
-      error: (cause: unknown) => {
-        const status = cause instanceof HttpErrorResponse ? cause.status : 0;
-        this.error.set(status === 409 ? 'Ya existe un cliente con ese correo.' : status === 403 ? 'Tu rol no tiene permiso para crear clientes.' : 'No se pudo crear el cliente. Comprueba los datos e inténtalo de nuevo.');
-      },
-    });
+  save(): void {
+    this.formError.set('');
+    if (this.reading() || this.importing()) { this.formError.set('La API todavía no tiene una ruta para importar CSV.'); return; }
+    const user = this.user();
+    if (!user) { this.formError.set('Inicia sesión para crear un cliente.'); return; }
+    this.store.dispatch(createCustomer({ organizationId: user.organization_id, name: this.draft.name, email: this.draft.email }));
   }
 }
