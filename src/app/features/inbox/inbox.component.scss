@@ -62,6 +62,13 @@ button { color: inherit; }
 .inbox-header h1 { margin: 0; font-size: 21px; line-height: 1; letter-spacing: -.035em; font-weight: 650; }
 .new-conversation { width: 35px; height: 35px; display: grid; place-items: center; border: 0; border-radius: 10px; color: white; background: var(--accent); cursor: pointer; box-shadow: 0 5px 14px rgb(64 111 87 / 15%); }
 .new-conversation:hover { background: var(--accent-deep); }
+.new-conversation:disabled { opacity: .5; cursor: not-allowed; }
+.new-conversation-field { display: grid; gap: 8px; margin: 22px 0; font-size: 12px; }
+.new-conversation-field select { padding: 10px; border: 1px solid var(--line-strong); border-radius: 8px; background: white; color: var(--ink); }
+.new-conversation-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+dialog { width: min(460px, calc(100vw - 32px)); border: 1px solid var(--line-strong); border-radius: 14px; padding: 25px; color: var(--ink); }
+dialog::backdrop { background: #26392a55; }
+dialog h2 { font-size: 18px; }
 .assignment-filter { padding: 0 18px 13px; border-bottom: 1px solid var(--line-soft); }
 .assignment-filter > p { margin: 9px 4px 10px; color: var(--muted-light); font-size: 9px; font-weight: 750; letter-spacing: .11em; }
 .filter-tabs { display: flex; gap: 4px; padding: 3px; border-radius: 11px; background: var(--canvas); }
@@ -145,6 +152,7 @@ button { color: inherit; }
 .detail-section h4 { margin: 0 0 12px; color: var(--muted-light); font-size: 8.5px; letter-spacing: .1em; }
 .select-row { width: 100%; padding: 9px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 8px; text-align: left; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); cursor: pointer; }
 .select-row:hover { background: var(--surface-hover); }
+.field-note { display: block; margin-top: 8px; color: var(--muted-light); font-size: 9px; line-height: 1.5; }
 .profile-avatar--small { width: 29px; height: 29px; }
 .select-row small, .select-row strong { display: block; }
 .select-row small { color: var(--muted-light); font-size: 8px; }
