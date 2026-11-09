@@ -7,7 +7,7 @@
         <p class="eyebrow">BANDEJA DE ENTRADA</p>
         <h1 id="inbox-title">Conversaciones</h1>
       </div>
-      <button type="button" class="new-conversation" aria-label="Nueva conversación" title="Nueva conversación">
+      <button type="button" class="new-conversation" aria-label="Nueva conversación" title="Nueva conversación" [disabled]="!customerOptions().length" (click)="openNewConversation()">
         <app-icon name="plus" [size]="18" />
       </button>
     </header>
@@ -16,11 +16,11 @@
       <p>POR ASIGNACIÓN</p>
       <div class="filter-tabs" role="tablist">
         <button type="button" role="tab" [attr.aria-selected]="activeFilter() === 'all'"
-          [class.active]="activeFilter() === 'all'" (click)="setFilter('all')">Todas <span>24</span></button>
+          [class.active]="activeFilter() === 'all'" (click)="setFilter('all')">Todas <span>{{ conversations().length }}</span></button>
         <button type="button" role="tab" [attr.aria-selected]="activeFilter() === 'mine'"
-          [class.active]="activeFilter() === 'mine'" (click)="setFilter('mine')">Mías <span>8</span></button>
+          [class.active]="activeFilter() === 'mine'" (click)="setFilter('mine')">Mías <span>{{ mineCount() }}</span></button>
         <button type="button" role="tab" [attr.aria-selected]="activeFilter() === 'unassigned'"
-          [class.active]="activeFilter() === 'unassigned'" (click)="setFilter('unassigned')">Sin asignar <span>6</span></button>
+          [class.active]="activeFilter() === 'unassigned'" (click)="setFilter('unassigned')">Sin asignar <span>{{ unassignedCount() }}</span></button>
       </div>
     </div>
 
@@ -32,6 +32,8 @@
       <kbd>⌘ K</kbd>
     </label>
 
+    @if (loading()) { <p class="empty-list" role="status">Cargando conversaciones…</p> }
+    @if (loadError()) { <div class="empty-list" role="alert"><p>{{ loadError() }}</p><button type="button" (click)="loadConversations()">Reintentar</button></div> }
     <div class="conversation-list">
       @for (conversation of filteredConversations(); track trackConversation($index, conversation)) {
         <button type="button" class="conversation-row"
@@ -40,7 +42,7 @@
           <span class="avatar" [attr.data-tone]="conversation.avatarTone">
             {{ conversation.initials }}
             <span class="channel" [attr.data-channel]="conversation.channel">
-              <app-icon [name]="conversation.channel" [size]="11" />
+              <app-icon [name]="conversation.channel === 'unknown' ? 'inbox' : conversation.channel" [size]="11" />
             </span>
           </span>
           <span class="conversation-content">
@@ -64,10 +66,10 @@
     <header class="conversation-header">
       <div class="conversation-person">
         <span class="avatar avatar--small" [attr.data-tone]="selectedConversation().avatarTone">{{ selectedConversation().initials }}</span>
-        <div><h2 id="conversation-title">{{ selectedConversation().name }}</h2><p><span class="online-dot"></span> Activa ahora · {{ selectedChannelLabel() }}</p></div>
+        <div><h2 id="conversation-title">{{ selectedConversation().name }}</h2><p><span class="online-dot"></span> {{ statusLabel() }} · {{ selectedChannelLabel() }}</p></div>
       </div>
       <div class="conversation-actions">
-        <button type="button" class="resolve-button"><app-icon name="check" [size]="17" /> Resolver</button>
+        <button type="button" class="resolve-button" [disabled]="selectedConversation().status === 'resolved' || !selectedConversation().id" (click)="resolveConversation()"><app-icon name="check" [size]="17" /> {{ selectedConversation().status === 'resolved' ? 'Resuelta' : 'Resolver' }}</button>
         <button type="button" class="icon-button" title="Archivar"><app-icon name="archive" [size]="18" /></button>
         <button type="button" class="icon-button" title="Más opciones"><app-icon name="more" [size]="18" /></button>
         <button type="button" class="icon-button detail-toggle" (click)="toggleDetails()" title="Detalles del contacto"><app-icon name="info" [size]="18" /></button>
@@ -75,44 +77,24 @@
     </header>
 
     <div class="messages" aria-label="Historial de mensajes">
-      <div class="day-divider"><span>Hoy</span></div>
-      @if (selectedConversation().id === 1) {
-        <article class="message customer-message">
-          <span class="avatar avatar--message" data-tone="sage">MG</span>
-          <div><p>Hola, necesito ayuda para actualizar el correo asociado a mi cuenta.</p><time>10:24 a. m.</time></div>
-        </article>
-        <article class="message agent-message">
-          <div><p>¡Hola, María! Claro que sí. Acabo de enviarte un enlace seguro al correo actual para confirmar el cambio.</p><time>10:26 a. m. <app-icon name="check" [size]="12" /></time></div>
-        </article>
-        <article class="message customer-message">
-          <span class="avatar avatar--message" data-tone="sage">MG</span>
-          <div><p>Ya lo confirmé. ¿Debo hacer algo más?</p><time>10:29 a. m.</time></div>
-        </article>
-        <article class="message agent-message">
-          <div><p>Todo listo por nuestra parte. Tu nuevo correo ya está activo y puedes usarlo para iniciar sesión.</p><time>10:31 a. m. <app-icon name="check" [size]="12" /></time></div>
-        </article>
-        <article class="message customer-message latest-message">
-          <span class="avatar avatar--message" data-tone="sage">MG</span>
-          <div><p>Perfecto, muchas gracias por la ayuda.</p><time>10:32 a. m.</time></div>
-        </article>
-      } @else {
-        <article class="message customer-message">
-          <span class="avatar avatar--message" [attr.data-tone]="selectedConversation().avatarTone">{{ selectedConversation().initials }}</span>
-          <div><p>{{ selectedConversation().preview }}</p><time>Hace {{ selectedConversation().time }}</time></div>
-        </article>
-        <article class="message agent-message latest-message">
-          <div><p>Hola, {{ selectedConversation().name.split(' ')[0] }}. Gracias por escribirnos. Ya estoy revisando tu caso y te ayudaré enseguida.</p><time>Ahora <app-icon name="check" [size]="12" /></time></div>
+      @if (loadingMessages()) { <p role="status" class="empty-list">Cargando mensajes…</p> }
+      @if (messageError()) { <p role="alert" class="empty-list">{{ messageError() }}</p> }
+      @if (!loadingMessages() && !messages().length && selectedConversation().id) { <p class="empty-list">Aún no hay mensajes en esta conversación.</p> }
+      @for (message of messages(); track message.id) {
+        <article class="message" [class.agent-message]="message.isStaff" [class.customer-message]="!message.isStaff">
+          @if (!message.isStaff) { <span class="avatar avatar--message" [attr.data-tone]="selectedConversation().avatarTone">{{ selectedConversation().initials }}</span> }
+          <div><p>{{ message.content }}</p><time>{{ message.senderLabel }} · {{ message.timeLabel }}</time></div>
         </article>
       }
     </div>
 
     <footer class="composer-wrap">
-      <div class="reply-mode"><span>Responder por</span><button type="button"><app-icon [name]="selectedConversation().channel" [size]="15" /> {{ selectedChannelLabel() }} <app-icon name="chevron-down" [size]="14" /></button></div>
+      <div class="reply-mode"><span>Responder en Support Flow</span><span><app-icon [name]="channelIcon()" [size]="15" /> {{ selectedChannelLabel() }}</span></div>
       <div class="composer">
-        <textarea rows="2" aria-label="Escribe una respuesta" placeholder="Escribe una respuesta..."></textarea>
+        <textarea rows="2" aria-label="Escribe una respuesta" placeholder="Escribe una respuesta..." [(ngModel)]="draftMessage" [disabled]="!selectedConversation().id || sending()"></textarea>
         <div class="composer-actions">
           <div><button type="button" class="composer-icon" title="Adjuntar archivo"><app-icon name="paperclip" [size]="18" /></button><button type="button" class="composer-icon" title="Añadir emoji"><app-icon name="smile" [size]="18" /></button></div>
-          <button type="button" class="send-button">Enviar <span>⌘↵</span><app-icon name="send" [size]="16" /></button>
+          <button type="button" class="send-button" [disabled]="!selectedConversation().id || !draftMessage.trim() || sending()" (click)="sendMessage()">{{ sending() ? 'Enviando…' : 'Enviar' }} <app-icon name="send" [size]="16" /></button>
         </div>
       </div>
     </footer>
@@ -124,12 +106,25 @@
       <div class="contact-summary">
         <span class="avatar avatar--large" [attr.data-tone]="selectedConversation().avatarTone">{{ selectedConversation().initials }}</span>
         <h3>{{ selectedConversation().name }}</h3>
-        <p>Cliente desde mayo de 2024</p>
-        <span class="status-pill"><span></span> Conversación abierta</span>
+        <p>{{ selectedChannelLabel() }}</p>
+        <span class="status-pill"><span></span> Conversación {{ statusLabel().toLowerCase() }}</span>
       </div>
-      <section class="detail-section"><h4>ASIGNACIÓN</h4><button type="button" class="select-row"><span class="profile-avatar profile-avatar--small">DE</span><span><small>Responsable</small><strong>{{ selectedConversation().assignedTo || 'Sin asignar' }}</strong></span><app-icon name="chevron-down" [size]="16" /></button></section>
-      <section class="detail-section"><h4>INFORMACIÓN</h4><dl><div><dt>Correo</dt><dd>{{ selectedEmail() }}</dd></div><div><dt>Teléfono</dt><dd>+57 310 456 7821</dd></div><div><dt>Idioma</dt><dd>Español</dd></div><div><dt>Zona horaria</dt><dd>Bogotá (GMT-5)</dd></div></dl></section>
-      <section class="detail-section"><h4>ETIQUETAS</h4><div class="tags">@for (tag of selectedConversation().tags; track tag) { <span>{{ tag }}</span> }<button type="button" aria-label="Añadir etiqueta"><app-icon name="plus" [size]="14" /></button></div></section>
+      <section class="detail-section"><h4>ASIGNACIÓN</h4><label class="select-row"><span class="profile-avatar profile-avatar--small">{{ selectedConversation().assignedTo ? 'AG' : '—' }}</span><span><small>Responsable</small>
+        @if (agentOptions().length) { <select aria-label="Asignar a agente" [ngModel]="selectedConversation().assignedToId ?? ''" (ngModelChange)="changeAssignment($event)" [disabled]="assignmentBusy()"><option value="">Sin asignar</option>@for (agent of agentOptions(); track agent.id) { <option [value]="agent.id">{{ agent.name }}</option> }</select> }
+        @else { <strong>{{ selectedConversation().assignedTo || 'Sin asignar' }}</strong> }
+      </span></label><small class="field-note">La asignación requiere permisos de administrador o supervisor.</small></section>
+      <section class="detail-section"><h4>INFORMACIÓN</h4><dl><div><dt>Correo</dt><dd>{{ selectedEmail() }}</dd></div><div><dt>Teléfono</dt><dd>No disponible</dd></div><div><dt>Canal</dt><dd>{{ selectedChannelLabel() }}</dd></div></dl></section>
+      <section class="detail-section"><h4>ETIQUETAS</h4><p>El API actual no devuelve etiquetas para conversaciones.</p></section>
     </aside>
   }
 </main>
+<dialog #newConversationDialog aria-labelledby="new-conversation-title">
+  <form (ngSubmit)="createConversation()">
+    <h2 id="new-conversation-title">Nueva conversación</h2>
+    @if (customerOptions().length) {
+      <label class="new-conversation-field">Cliente<select [ngModel]="newCustomerId()" (ngModelChange)="newCustomerId.set($event)" name="customer" required>@for (customer of customerOptions(); track customer.id) { <option [value]="customer.id">{{ customer.name }} · {{ customer.email }}</option> }</select></label>
+    } @else { <p class="empty-list">No hay clientes disponibles para iniciar una conversación.</p> }
+    @if (createConversationError()) { <p role="alert" class="message-error">{{ createConversationError() }}</p> }
+    <div class="new-conversation-actions"><button type="button" (click)="closeNewConversation()">Cancelar</button><button class="primary" type="submit" [disabled]="!newCustomerId() || creatingConversation()">{{ creatingConversation() ? 'Creando…' : 'Crear conversación' }}</button></div>
+  </form>
+</dialog>

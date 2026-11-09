@@ -1,0 +1,25 @@
+import { createFeatureSelector, createSelector } from '@ngrx/store';
+import { SupportDataState } from './support-data.reducer';
+
+export const selectSupportData = createFeatureSelector<SupportDataState>('supportData');
+export const selectCustomers = createSelector(selectSupportData, state => state.customers);
+export const selectContactConversations = createSelector(selectSupportData, state => state.contactConversations);
+export const selectContactsLoading = createSelector(selectSupportData, state => state.contactsLoading);
+export const selectContactsError = createSelector(selectSupportData, state => state.contactsError);
+export const selectCustomerCreating = createSelector(selectSupportData, state => state.customerCreating);
+export const selectCustomerCreateError = createSelector(selectSupportData, state => state.customerCreateError);
+export const selectConversations = createSelector(selectSupportData, state => state.conversations);
+export const selectConversationCustomers = createSelector(selectSupportData, state => state.conversationCustomers);
+export const selectAgents = createSelector(selectSupportData, state => state.agents);
+export const selectInboxLoading = createSelector(selectSupportData, state => state.inboxLoading);
+export const selectInboxError = createSelector(selectSupportData, state => state.inboxError);
+export const selectMessages = createSelector(selectSupportData, state => state.messages);
+export const selectConversationPreviews = createSelector(selectSupportData, state => state.conversationPreviews);
+export const selectMessagesLoading = createSelector(selectSupportData, state => state.messagesLoading);
+export const selectMessagesError = createSelector(selectSupportData, state => state.messagesError);
+export const selectConversationCreating = createSelector(selectSupportData, state => state.conversationCreating);
+export const selectConversationCreateError = createSelector(selectSupportData, state => state.conversationCreateError);
+export const selectMessageSending = createSelector(selectSupportData, state => state.messageSending);
+export const selectMessageSendError = createSelector(selectSupportData, state => state.messageSendError);
+export const selectConversationUpdating = createSelector(selectSupportData, state => state.conversationUpdating);
+export const selectConversationUpdateError = createSelector(selectSupportData, state => state.conversationUpdateError);

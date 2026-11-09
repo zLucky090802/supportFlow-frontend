@@ -67,7 +67,8 @@
               "buildTarget": "supportflow:build:production"
             },
             "development": {
-              "buildTarget": "supportflow:build:development"
+              "buildTarget": "supportflow:build:development",
+              "proxyConfig": "src/proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

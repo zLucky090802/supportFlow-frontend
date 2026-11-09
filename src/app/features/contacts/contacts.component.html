@@ -2,20 +2,19 @@
   <app-sidebar [compact]="compact()" (compactChange)="compact.set($event)" />
   <section class="content" aria-labelledby="contacts-title">
     <header class="top"><div><p class="eyebrow">TU ESPACIO DE TRABAJO</p><h1 id="contacts-title">Contactos</h1><p class="subtitle">Cada conversación empieza con una persona.</p></div>
-      <div class="top-actions"><button type="button" (click)="openDialog(editor, true)">Importar</button><button class="primary" type="button" (click)="openDialog(editor, false)">＋ Nuevo contacto</button></div>
+      <div class="top-actions"><button class="primary" type="button" (click)="openDialog(editor, false)">＋ Nuevo cliente</button></div>
     </header>
-    <p class="storage-note">Datos de ejemplo y contactos guardados solo en este navegador.</p>
-    @if (store.warning()) { <p class="feedback error" role="alert">{{ store.warning() }}</p> }
+    <p class="storage-note">Clientes de tu organización, consultados desde Support Flow. El backend no incluye canales ni etiquetas.</p>
+    @if (loading()) { <p class="feedback" role="status">Cargando clientes…</p> }
+    @if (loadError()) { <p class="feedback error" role="alert">{{ loadError() }}</p><button type="button" (click)="load()">Reintentar</button> }
     @if (notice()) { <p class="feedback" role="status">{{ notice() }}</p> }
     <div class="tabs" aria-label="Grupo de contactos">@for (item of groups(); track item.id) {
       <button type="button" [class.active]="group() === item.id" [attr.aria-pressed]="group() === item.id" (click)="group.set(item.id)">{{ item.label }} <span>{{ item.count }}</span></button>
     }</div>
     <div class="toolbar">
       <label class="search"><app-icon name="search" /><input type="search" aria-label="Buscar contactos" placeholder="Buscar por nombre o correo..." [ngModel]="query()" (ngModelChange)="query.set($event)" /></label>
-      <select aria-label="Filtrar por canal" [ngModel]="channel()" (ngModelChange)="channel.set($event)"><option value="">Todos los canales</option><option>WhatsApp</option><option>Correo</option><option>Instagram</option></select>
-      <select aria-label="Filtrar por etiqueta" [ngModel]="tag()" (ngModelChange)="tag.set($event)"><option value="">Etiquetas</option><option>Cliente</option><option>VIP</option><option>Prospecto</option></select>
     </div>
-    <div class="table-wrap"><table aria-label="Contactos"><thead><tr><th scope="col">CONTACTO</th><th scope="col">ETIQUETA</th><th scope="col">ÚLTIMA ACTIVIDAD</th></tr></thead><tbody>
+    @if (!loading() && !loadError()) {<div class="table-wrap"><table aria-label="Clientes"><thead><tr><th scope="col">CLIENTE</th><th scope="col">ETIQUETAS</th><th scope="col">REGISTRO</th></tr></thead><tbody>
       @for (contact of filteredContacts(); track contact.id) {
         <tr [class.selected]="selected()?.id === contact.id" (click)="selectedId.set(contact.id)">
           <td><button class="person" type="button" [attr.aria-pressed]="selected()?.id === contact.id" (click)="selectedId.set(contact.id)"><span class="avatar" [style.background]="contact.tone">{{ contact.initials }}</span><span><strong>{{ contact.name }}</strong><small>{{ contact.email }}</small></span></button></td>
@@ -24,7 +23,7 @@
       } @empty {
         <tr><td colspan="3" class="empty"><p>No hay contactos con estos filtros.</p><button type="button" (click)="clearFilters()">Limpiar filtros</button></td></tr>
       }
-    </tbody></table></div>
+    </tbody></table></div>}
     <footer class="table-foot"><span role="status">{{ filteredContacts().length }} de {{ contacts().length }} contactos</span><span>Todos los resultados</span></footer>
   </section>
   <aside class="detail" aria-label="Ficha del contacto">
@@ -35,16 +34,16 @@
         @else { <button type="button" disabled>Sin conversación disponible</button> }
       </div>
       <section class="section"><h3>INFORMACIÓN</h3><dl><dt>Correo electrónico</dt><dd>{{ contact.email }}</dd><dt>Canal principal</dt><dd>{{ contact.channel }}</dd><dt>Responsable</dt><dd>{{ contact.owner }}</dd></dl></section>
-      <section class="section"><h3>ETIQUETAS</h3><span class="pill">{{ contact.tag }}</span><span class="pill">Español</span></section>
-      <section class="section"><h3>ACTIVIDAD RECIENTE</h3><div class="event">{{ contact.time === 'Sin conversaciones' ? 'Sin actividad de conversación' : 'Último contacto' }}<small>{{ contact.time }}</small></div><div class="event">{{ contact.owner === 'Sin asignar' ? 'Pendiente de asignación' : 'Conversación asignada' }}<small>{{ contact.owner === 'Sin asignar' ? 'Equipo de soporte' : contact.owner }}</small></div></section>
+      <section class="section"><h3>ETIQUETAS</h3><span class="pill">No disponibles en el API actual</span></section>
+      <section class="section"><h3>ACTIVIDAD</h3><div class="event">{{ contact.time === 'Fecha no disponible' ? 'Fecha de registro no disponible' : 'Cliente registrado' }}<small>{{ contact.time }}</small></div><div class="event">Asignación de conversaciones<small>No está incluida en el API de clientes</small></div></section>
       <section class="section"><h3>NOTAS DEL EQUIPO</h3><p class="note">{{ contact.note || 'Todavía no hay notas para este contacto.' }}</p></section>
     } @else { <p class="empty">No hay un contacto para mostrar.</p> }
   </aside>
 </main>
 <dialog #editor aria-labelledby="editor-title" aria-describedby="editor-description" (close)="cancelRead()" (cancel)="cancelRead()">
-  <form #contactForm="ngForm" (ngSubmit)="save(editor)">
+  <form #contactForm="ngForm" (ngSubmit)="save()">
     <h2 id="editor-title">{{ importing() ? 'Importar contactos' : 'Nuevo contacto' }}</h2>
-    <p id="editor-description" class="dialog-description">Se guardarán en este navegador. No se sincronizan con otros dispositivos.</p>
+    <p id="editor-description" class="dialog-description">Se guardará en la organización vinculada a tu sesión.</p>
     @if (importing()) {
       <label class="field">Archivo CSV<input type="file" accept=".csv,text/csv" (change)="readCsv($event)" /></label>
       <p class="dialog-description">Hasta 1 MB y 1.000 contactos. Usa comas o punto y coma con estas columnas:</p>
@@ -60,9 +59,8 @@ Ana Pérez,ana&#64;ejemplo.com,WhatsApp,Cliente</pre>
       <label class="field">Nombre<input name="name" [(ngModel)]="draft.name" required maxlength="100" autocomplete="name" /></label>
       <label class="field">Correo electrónico<input name="email" [(ngModel)]="draft.email" type="email" email required maxlength="254" autocomplete="email" #emailField="ngModel" /></label>
       @if (emailField.invalid && emailField.touched) { <p class="error" role="alert">Introduce un correo electrónico válido.</p> }
-      <div class="field-pair"><label class="field">Canal<select name="channel" [(ngModel)]="draft.channel"><option>WhatsApp</option><option>Correo</option><option>Instagram</option></select></label><label class="field">Etiqueta<select name="tag" [(ngModel)]="draft.tag"><option>Cliente</option><option>VIP</option><option>Prospecto</option></select></label></div>
     }
     @if (error()) { <p class="feedback error" role="alert">{{ error() }}</p> }
-    <div class="dialog-actions"><button type="button" (click)="editor.close()">Cancelar</button><button class="primary" type="submit" [disabled]="reading() || (importing() ? !preview().length : contactForm.invalid)">{{ importing() ? 'Confirmar importación' : 'Guardar contacto' }}</button></div>
+    <div class="dialog-actions"><button type="button" (click)="editor.close()">Cancelar</button><button class="primary" type="submit" [disabled]="loading() || saving() || reading() || contactForm.invalid">{{ saving() ? 'Guardando…' : 'Guardar cliente' }}</button></div>
   </form>
 </dialog>
